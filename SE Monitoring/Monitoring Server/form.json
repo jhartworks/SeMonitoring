@@ -1,0 +1,17 @@
+{
+    "elements":
+    [
+        { "type": "ValidationTextBox", "name": "DiscordWsUrl", "caption": "Discord Websocket URL" }
+
+    ],
+    "actions":
+    [
+        { "type": "ValidationTextBox", "name": "Title", "caption": "Title / User" },
+        { "type": "ValidationTextBox", "name": "Message", "caption": "Message" },
+        { "type": "Button", "label": "Send Message", "onClick": "DWM_SendMessage($id, $Title, $Message);" }
+    ],
+    "status":
+    [
+
+    ]
+}
