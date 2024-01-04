@@ -1,0 +1,14 @@
+{
+    "id": "{12369413-F10C-57D1-FB84-5BA243EFEE5C}",
+    "name": "Monitoring Client",
+    "type": 3,
+    "vendor": "J.H. Artworks",
+    "aliases":
+    [
+    ],
+    "url": "https://jh-artworks.com",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "SEMC"
+}
