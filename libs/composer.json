@@ -1,0 +1,11 @@
+{
+    "require": {
+        "influxdata/influxdb-client-php": "^3.4",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
