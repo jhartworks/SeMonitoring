@@ -1,14 +1,37 @@
 {
     "elements":
     [
-        { "type": "ValidationTextBox", "name": "DiscordWsUrl", "caption": "Discord Websocket URL" }
+        { "type": "SelectCategory", "name": "ParseNotifyCategoryID", "caption": "Digital-Objects Target ID" },
+        { "type": "SelectCategory", "name": "ParseAlarmCategoryID", "caption": "Alarm-Objects Target ID" },
+        { "type": "SelectCategory", "name": "ParseAnalogCategoryID", "caption": "Analog-Objects Target ID" },
+
+        { "type": "NumberSpinner", "name": "Projectnumber", "caption": "Projectnumber without leading P Character" },
+        { "type": "ValidationTextBox", "name": "Projectname", "caption": "Projectname" },
+        { "type": "ValidationTextBox", "name": "Projectlocation", "caption": "Projectlocation" },
+        { "type": "ValidationTextBox", "name": "Projecttags", "caption": "Projecttags" },
+
+        { "type": "NumberSpinner", "name": "ISP", "caption": "ISP-Number" },
+        { "type": "SelectInstance", "name": "VisuId", "caption": "Web Visu" },
+        { "type": "CheckBox", "name": "SendNotification", "caption": "Send Notification" },
+        { "type": "CheckBox", "name": "LogValues", "caption": "Log Values" },
+
+        { "type": "Select", "name": "SslHttp", "caption": "SSL ?",
+        "options": [
+            { "caption": "Normal", "value": "http://" },
+            { "caption": "SSL", "value": "https://" }
+        ]
+        },
+        { "type": "ValidationTextBox", "name": "InfluxServer", "caption": "Influx Server" },
+        { "type": "NumberSpinner", "name": "InfluxPort", "caption": "Influx Port" },
+        { "type": "ValidationTextBox", "name": "InfluxToken", "caption": "Influx API Token" },
+        { "type": "ValidationTextBox", "name": "InfluxOrg", "caption": "Influx Org." },
+        { "type": "NumberSpinner", "name": "UpdateintervallValues", "caption": "Updateintervall Values in Seconds" },
+        { "type": "NumberSpinner", "name": "UpdateintervallAlarms", "caption": "Updateintervall Alarms in Seconds" }
 
     ],
     "actions":
     [
-        { "type": "ValidationTextBox", "name": "Title", "caption": "Title / User" },
-        { "type": "ValidationTextBox", "name": "Message", "caption": "Message" },
-        { "type": "Button", "label": "Send Message", "onClick": "DWM_SendMessage($id, $Title, $Message);" }
+        { "type": "Button", "label": "Check Connection", "onClick": "SEMS_checkInfluxState($id);" }
     ],
     "status":
     [

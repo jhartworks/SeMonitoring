@@ -6,7 +6,10 @@ class MonitoringClient extends IPSModule {
         // Diese Zeile nicht löschen.
         parent::Create();
         
-        $this->RegisterPropertyInteger("ParseCategoryID","0");
+        $this->RegisterPropertyInteger("ParseNotifyCategoryID","0");
+        $this->RegisterPropertyInteger("ParseAlarmCategoryID","0");
+        $this->RegisterPropertyInteger("ParseAnalogCategoryID","0");
+
         $this->RegisterPropertyInteger("MqttCLientID","0");
         $this->RegisterPropertyString("Projectnumber","");
         $this->RegisterPropertyString("Projectname","");
@@ -113,43 +116,99 @@ class MonitoringClient extends IPSModule {
     } // MQTT_Publish
 
     public function SendTopic() {
-   
-            // Discord webhook URL
-            $catId = $this->ReadPropertyInteger("ParseCategoryID");
-            $mqttId = $this->ReadPropertyInteger("MqttCLientID");
-            $projectyear = $this->ReadPropertyInteger("Projectyear");
-            $projectnumber = $this->ReadPropertyString("Projectnumber");
-            $projectname = $this->ReadPropertyString("Projectname");
-            $ispnumber = $this->ReadPropertyInteger("ISP");
-            $updatetime = $this->ReadPropertyInteger("Updatetime");
+        $mqttId = $this->ReadPropertyInteger("MqttCLientID");
+        $projectyear = $this->ReadPropertyInteger("Projectyear");
+        $projectnumber = $this->ReadPropertyString("Projectnumber");
+        $projectname = $this->ReadPropertyString("Projectname");
+        $ispnumber = $this->ReadPropertyInteger("ISP");
+        $updatetime = $this->ReadPropertyInteger("Updatetime");
 
-            $catChilds = IPS_GetChildrenIDs($catId);
+            $catIds[0]["id"] = $this->ReadPropertyInteger("ParseNotifyCategoryID");
+            $catIds[0]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Notify/";
+            $catIds[1]["id"] = $this->ReadPropertyInteger("ParseAlarmCategoryID");
+            $catIds[1]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
+            $catIds[2]["id"] = $this->ReadPropertyInteger("ParseAnalogCategoryID");
+            $catIds[2]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
 
-            foreach ($catChilds as $catChild) {
 
-                $childids = IPS_GetChildrenIDs($catChild);
 
-                $parname = IPS_GetName($catChild);
+            foreach ($catIds as $catId){
 
-                    foreach ($childids as $childid){
+                        $catChilds = IPS_GetChildrenIDs($catId["id"]);
 
-                        $varInfo = IPS_GetVariable($childid);
-                        $changedtime = $varInfo["VariableChanged"];
-                        $varname = IPS_GetName($childid);
-                        $topic = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/". $parname."_".$varname;
-                        $time = time();
-                        $payload = round(getvalue($childid), 2);
-                        if($changedtime > time() - $updatetime){
-                            SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                        foreach ($catChilds as $catChild) {
+
+                            $childids = IPS_GetChildrenIDs($catChild);
+
+                            $parname = IPS_GetName($catChild);
+
+                                foreach ($childids as $childid){
+
+                                    $varInfo = IPS_GetVariable($childid);
+                                    $changedtime = $varInfo["VariableChanged"];
+                                    $varname = IPS_GetName($childid);
+                                    $topic = $catId["top"]. $parname."_".$varname;
+                                    $time = time();
+                                    $payload = round(getvalue($childid), 2);
+                                    if($changedtime > time() - $updatetime){
+                                        SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                                    }
+
+
+                                }
+                        
                         }
 
-
-                    }
-            
             }
-
     }
 
+    public function ForceSendTopic() {
+   
+        $mqttId = $this->ReadPropertyInteger("MqttCLientID");
+        $projectyear = $this->ReadPropertyInteger("Projectyear");
+        $projectnumber = $this->ReadPropertyString("Projectnumber");
+        $projectname = $this->ReadPropertyString("Projectname");
+        $ispnumber = $this->ReadPropertyInteger("ISP");
+        $updatetime = $this->ReadPropertyInteger("Updatetime");
+
+            $catIds[0]["id"] = $this->ReadPropertyInteger("ParseNotifyCategoryID");
+            $catIds[0]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Notify/";
+            $catIds[1]["id"] = $this->ReadPropertyInteger("ParseAlarmCategoryID");
+            $catIds[1]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
+            $catIds[2]["id"] = $this->ReadPropertyInteger("ParseAnalogCategoryID");
+            $catIds[2]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
+
+
+
+            foreach ($catIds as $catId){
+
+                        $catChilds = IPS_GetChildrenIDs($catId["id"]);
+
+                        foreach ($catChilds as $catChild) {
+
+                            $childids = IPS_GetChildrenIDs($catChild);
+
+                            $parname = IPS_GetName($catChild);
+
+                                foreach ($childids as $childid){
+
+                                    $varname = IPS_GetName($childid);
+                                    $topic = $catId["top"]. $parname."_".$varname;
+                                    $payload = round(getvalue($childid), 2);
+
+                                    SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                                    
+
+
+                                }
+                        
+                        }
+
+            }
+            $topic = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Name";
+            SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $projectname, false);
+
+    }
 
 
 }
