@@ -113,7 +113,10 @@ class MonitoringServer extends IPSModule {
         curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
         //echo 'es war ein float/int ';
         }
-
+        
+        $result=curl_exec ($ch);
+        $error=curl_error($ch) ;
+        
         
     }
 
