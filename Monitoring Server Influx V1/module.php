@@ -78,7 +78,7 @@ class MonitoringServer extends IPSModule {
             $status = ($stoptime - $starttime) * 1000;
             $status = floor($status);
         }
-        if ($status  > 0){
+        if ($status  > -1){
             print_r("Everything fine :)");
         }
         return $status;     
@@ -143,7 +143,7 @@ class MonitoringServer extends IPSModule {
                             $alarmvalues++;
                             if ($sendit == true){
                                 if ($this->notify($childid, $visuId, $catAlarmId, $projectnumber, $projectname, $ispnumber) == true){
-                                    $inalarmcount++;
+                                    $inalarmcount ++;
                                 }
                             }
     
@@ -217,8 +217,9 @@ class MonitoringServer extends IPSModule {
                             $category = "Analog";
                             $valuename = $parname."".$varname;
                            // if($this->state["status"] == "pass"){ }
-
-                            Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
+                           if($this->checkInfluxState() > -1){ 
+                            $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
+                           }
                         }
                        
     
@@ -260,8 +261,8 @@ class MonitoringServer extends IPSModule {
                         $category = "Digital";
                         $valuename = $parname."_".$varname;
 
-                            if($this->checkInfluxState() < 5){ 
-                                Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
+                            if($this->checkInfluxState() > -1){ 
+                                $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
                             }
 
 
