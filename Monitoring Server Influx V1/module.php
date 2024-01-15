@@ -78,7 +78,9 @@ class MonitoringServer extends IPSModule {
             $status = ($stoptime - $starttime) * 1000;
             $status = floor($status);
         }
-        print_r($status);
+        if ($status == 4){
+            print_r("Everything fine :)");
+        }
         return $status;     
     }
 
@@ -94,28 +96,25 @@ class MonitoringServer extends IPSModule {
 
 
 
-        if (is_bool($value) == true){
 
-            if ($value == true){
-            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=1');
-            }
-            else{
-            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=0');
-            }
+        if ($value == filter_var($value, FILTER_VALIDATE_FLOAT)){
+            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .  number_format($value/1,1,'.','') );
+            //echo 'es war ein float ';
+           }elseif ($value = filter_var($value, FILTER_VALIDATE_BOOLEAN)){
+        
+                if ($value == true){
+                curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=1');
+                }
+                else{
+                curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=0');
+                }
             //echo 'es war ein bool ';
-        }
+            }elseif (filter_var($value, FILTER_VALIDATE_INT)){
+            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
+            //echo 'es war ein int ';
+            }
 
-
-
-        if (is_integer($value) == true){
-        curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
-        }
-
-        if (is_float($value) == true){
-        curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .  number_format($value/1,1,'.','') );
-        //echo 'es war ein float ';
-
-        }
+        
     }
 
     public function checkAlarms() {
@@ -264,9 +263,11 @@ class MonitoringServer extends IPSModule {
                         $system = "P".$projectnumber."_ISP".$ispnumber;
                         $category = "Digital";
                         $valuename = $parname."_".$varname;
-                           // if($this->state["status"] == "pass"){ }
 
-                            Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
+                            if($this->checkInfluxState() < 5){ 
+                                Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
+                            }
+
 
                        }
     
