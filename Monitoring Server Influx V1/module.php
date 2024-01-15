@@ -291,7 +291,7 @@ class MonitoringServer extends IPSModule {
 
             $smname = IPS_GetName(IPS_GetParent($trigid))."_".IPS_GetName($trigid);
 
-            if (GetValueBoolean($trigid) == true && ($this->GetBuffer($smname) == "true"))  {
+            if (GetValue($trigid) == true && ($this->GetBuffer($smname) == "true"))  {
                 
                 $this->SetBuffer($smname, "false");   
 
@@ -300,11 +300,11 @@ class MonitoringServer extends IPSModule {
 
                 
             }
-            elseif (GetValueBoolean($trigid) == false) {
+            elseif (GetValue($trigid) == false) {
                 $this->SetBuffer($smname, "true");
             }
 
-            if (GetValueBoolean($trigid) == true){
+            if (GetValue($trigid) == true){
                 return true; 
             }else{
                 return false;
