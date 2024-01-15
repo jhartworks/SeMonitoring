@@ -79,7 +79,7 @@ class MonitoringServer extends IPSModule {
             $status = floor($status);
         }
         if ($status  > -1){
-            print_r("Everything fine :)");
+           // print_r("Everything fine :)");
         }
         return $status;     
     }
@@ -216,9 +216,11 @@ class MonitoringServer extends IPSModule {
                             $system = "P".$projectnumber."ISP".$ispnumber;
                             $category = "Analog";
                             $valuename = $parname."".$varname;
-                           // if($this->state["status"] == "pass"){ }
+                            IPS_LogMessage ("Analog Var-Logger", "Ready: ".$system."/".$category."/".$valuename." with Value: ".$payload);
+
                            if($this->checkInfluxState() > -1){ 
                             $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
+                            IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
                            }
                         }
                        
