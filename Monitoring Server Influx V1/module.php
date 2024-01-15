@@ -98,16 +98,16 @@ class MonitoringServer extends IPSModule {
 
         if ($value == "true"){
             curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=1');
-            echo 'es war ein bool der TRUE war ';
+          //  echo 'es war ein bool der TRUE war ';
             }
         elseif($value == "false"){
             curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=0');
             
-        echo 'es war ein bool ';
+        //echo 'es war ein bool ';
         }
         else{
         curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
-        echo 'es war ein float/int ';
+        //echo 'es war ein float/int ';
         }
 
         
@@ -139,7 +139,7 @@ class MonitoringServer extends IPSModule {
                             $changedtime = $varInfo["VariableChanged"];
                             $varname = IPS_GetName($childid);
                             $time = time();
-                            $payload = GetValueBoolean($childid);
+                            $payload = GetValue($childid);
                             $alarmvalues++;
                             if ($sendit == true){
                                 if ($this->notify($childid, $visuId, $catAlarmId, $projectnumber, $projectname, $ispnumber) == true){
