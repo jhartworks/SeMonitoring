@@ -236,7 +236,7 @@ class MonitoringServer extends IPSModule {
 
                            if($this->checkInfluxState() > -1){ 
                             $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
-                            //IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
+                            IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
                            }
                         }
                        
