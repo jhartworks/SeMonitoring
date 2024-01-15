@@ -78,7 +78,7 @@ class MonitoringServer extends IPSModule {
             $status = ($stoptime - $starttime) * 1000;
             $status = floor($status);
         }
-        if ($status == 4){
+        if ($status  > 0){
             print_r("Everything fine :)");
         }
         return $status;     
@@ -97,22 +97,19 @@ class MonitoringServer extends IPSModule {
 
 
 
-        if ($value == filter_var($value, FILTER_VALIDATE_FLOAT)){
-            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .  number_format($value/1,1,'.','') );
-            //echo 'es war ein float ';
-           }elseif ($value = filter_var($value, FILTER_VALIDATE_BOOLEAN)){
-        
-                if ($value == true){
+
+        if ($value == true){
                 curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=1');
                 }
-                else{
+        elseif($value == false){
                 curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=0');
-                }
+                
             //echo 'es war ein bool ';
-            }elseif (filter_var($value, FILTER_VALIDATE_INT)){
+        }
+        else{
             curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
-            //echo 'es war ein int ';
-            }
+            //echo 'es war ein float/int ';
+        }
 
         
     }
