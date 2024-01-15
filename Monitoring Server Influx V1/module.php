@@ -212,15 +212,31 @@ class MonitoringServer extends IPSModule {
 
                             $parname = str_replace(" ","", $parname);
                             $varname = str_replace(" ","", $varname);
-                            
-                            $system = "P".$projectnumber."ISP".$ispnumber;
+
+                            $parname = str_replace("ä","ae", $parname);
+                            $varname = str_replace("ä","ae", $varname);
+
+                            $parname = str_replace(".","", $parname);
+                            $varname = str_replace(".","", $varname);
+
+                            $parname = str_replace("ö","oe", $parname);
+                            $varname = str_replace("ö","oe", $varname);
+
+                            $parname = str_replace("ü","ue", $parname);
+                            $varname = str_replace("ü","ue", $varname);
+
+                            $parname = str_replace(",","", $parname);
+                            $varname = str_replace(",","", $varname);
+
+
+                            $system = "P".$projectnumber."_ISP".$ispnumber;
                             $category = "Analog";
                             $valuename = $parname."".$varname;
-                            IPS_LogMessage ("Analog Var-Logger", "Ready: ".$system."/".$category."/".$valuename." with Value: ".$payload);
+                            //IPS_LogMessage ("Analog Var-Logger", "Ready: ".$system."/".$category."/".$valuename." with Value: ".$payload);
 
                            if($this->checkInfluxState() > -1){ 
                             $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
-                            IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
+                            //IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
                            }
                         }
                        
