@@ -88,12 +88,16 @@ class MonitoringServer extends IPSModule {
     {
         $out = $ssl.$host.':'.$port.'/write?db='.$db.'';
         
+        IPS_LogMessage ("Write 2 Influx", "Output: ".$out);
+
 
         $ch = curl_init($out);
         
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt($ch, CURLOPT_POST,           1 );
 
+        IPS_LogMessage ("Write 2 Influx", "Posted Fields: ".$system.','.$category.'='.$valuename.' value=');
+        IPS_LogMessage ("Write 2 Influx", "Value: ".$value);
 
 
         if ($value == "true"){
