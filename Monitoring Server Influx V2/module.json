@@ -1,0 +1,14 @@
+{
+    "id": "{7352D2BC-6E14-3DAB-AF95-F8ED26D5A75C}",
+    "name": "Monitoring Server Influx V2",
+    "type": 3,
+    "vendor": "J.H. Artworks",
+    "aliases":
+    [
+    ],
+    "url": "https://jh-artworks.com",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "SEMS2"
+}

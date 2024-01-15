@@ -1,0 +1,14 @@
+{
+    "id": "{C07DA6C0-41B2-2651-08E8-D8F3CFEC9546}",
+    "name": "Monitoring Server",
+    "type": 3,
+    "vendor": "J.H. Artworks",
+    "aliases":
+    [
+    ],
+    "url": "https://jh-artworks.com",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "SEMS"
+}
