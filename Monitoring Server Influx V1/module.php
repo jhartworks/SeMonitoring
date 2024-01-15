@@ -96,19 +96,18 @@ class MonitoringServer extends IPSModule {
 
 
 
-
-
-        if ($value == true){
-                curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=1');
-                }
-        elseif($value == false){
-                curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=0');
-                
-            //echo 'es war ein bool ';
+        if ($value == "true"){
+            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=1');
+            echo 'es war ein bool der TRUE war ';
+            }
+        elseif($value == "false"){
+            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=0');
+            
+        echo 'es war ein bool ';
         }
         else{
-            curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
-            //echo 'es war ein float/int ';
+        curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
+        echo 'es war ein float/int ';
         }
 
         
@@ -214,9 +213,9 @@ class MonitoringServer extends IPSModule {
                             $parname = str_replace(" ","", $parname);
                             $varname = str_replace(" ","", $varname);
                             
-                            $system = "P".$projectnumber."_ISP".$ispnumber;
+                            $system = "P".$projectnumber."ISP".$ispnumber;
                             $category = "Analog";
-                            $valuename = $parname."_".$varname;
+                            $valuename = $parname."".$varname;
                            // if($this->state["status"] == "pass"){ }
 
                             Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
