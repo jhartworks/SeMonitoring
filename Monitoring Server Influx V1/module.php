@@ -113,7 +113,7 @@ class MonitoringServer extends IPSModule {
         curl_setopt($ch, CURLOPT_POSTFIELDS,     $system.','.$category.'='.$valuename.' value=' .$value);
         //echo 'es war ein float/int ';
         }
-        
+
         $result=curl_exec ($ch);
         $error=curl_error($ch) ;
         
@@ -335,5 +335,64 @@ class MonitoringServer extends IPSModule {
                 return false;
             }
     }
+
+    private function getTextAfterLastSlash($inputString) {
+        $lastSlashPosition = strrpos($inputString, '/');
+        if ($lastSlashPosition !== false) {
+            return substr($inputString, $lastSlashPosition + 1);
+        } else {
+            // Wenn kein Schrägstrich gefunden wurde, gib den gesamten Eingabestring zurück
+            return $inputString;
+        }
+    }
+    public function clearNames(){
+        $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
+        $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
+        $catAlarmId  = $this->ReadPropertyInteger("ParseAlarmCategoryID");
+
+        if ($catNotifyId > 0){
+
+            $catChilds = IPS_GetChildrenIDs($catNotifyId);
+
+            foreach ($catChilds as $catChild) { //for each object in category
+            
+
+                $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
+                $parname = IPS_GetName($catChild);
+
+                IPS_SetName($catChild,$this->getTextAfterLastSlash($parName));
+            
+            } 
+        }
+        if ($catAnalogId > 0){
+
+            $catChilds = IPS_GetChildrenIDs($catAnalogId);
+
+            foreach ($catChilds as $catChild) { //for each object in category
+            
+
+                $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
+                $parname = IPS_GetName($catChild);
+
+                IPS_SetName($catChild,$this->getTextAfterLastSlash($parName));
+            
+            } 
+        }
+        if ($catAlarmId > 0){
+
+            $catChilds = IPS_GetChildrenIDs($catAlarmId);
+
+            foreach ($catChilds as $catChild) { //for each object in category
+            
+
+                $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
+                $parname = IPS_GetName($catChild);
+
+                IPS_SetName($catChild,$this->getTextAfterLastSlash($parName));
+            
+            } 
+        }
+    }
+
 }
 ?>
