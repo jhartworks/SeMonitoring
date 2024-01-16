@@ -51,6 +51,7 @@ class MonitoringServer extends IPSModule {
 
         $this->SetTimerInterval("UpdateAlarms", $this->ReadPropertyInteger("UpdateintervallAlarms") * 1000);
         $this->SetTimerInterval("UpdateValues", $this->ReadPropertyInteger("UpdateintervallValues") * 1000);
+        $this->clearNames();
 
         // Diese Zeile nicht löschen
         parent::ApplyChanges();
