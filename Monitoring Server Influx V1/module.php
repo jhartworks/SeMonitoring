@@ -361,7 +361,7 @@ class MonitoringServer extends IPSModule {
                 $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
                 $parname = IPS_GetName($catChild);
 
-                IPS_SetName($catChild,$this->getTextAfterLastSlash($parName));
+                IPS_SetName($catChild,$this->getTextAfterLastSlash($parname));
             
             } 
         }
@@ -375,7 +375,7 @@ class MonitoringServer extends IPSModule {
                 $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
                 $parname = IPS_GetName($catChild);
 
-                IPS_SetName($catChild,$this->getTextAfterLastSlash($parName));
+                IPS_SetName($catChild,$this->getTextAfterLastSlash($parname));
             
             } 
         }
@@ -389,7 +389,7 @@ class MonitoringServer extends IPSModule {
                 $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
                 $parname = IPS_GetName($catChild);
 
-                IPS_SetName($catChild,$this->getTextAfterLastSlash($parName));
+                IPS_SetName($catChild,$this->getTextAfterLastSlash($parname));
             
             } 
         }
