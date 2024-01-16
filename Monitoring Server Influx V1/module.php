@@ -238,7 +238,7 @@ class MonitoringServer extends IPSModule {
 
 
                             $system = "P".$projectnumber."_ISP".$ispnumber;
-                            $category = "Analog";
+                            $category =  $system."_Analog";
                             $valuename = $parname."".$varname;
                             //IPS_LogMessage ("Analog Var-Logger", "Ready: ".$system."/".$category."/".$valuename." with Value: ".$payload);
 
@@ -284,7 +284,7 @@ class MonitoringServer extends IPSModule {
                             $varname = str_replace(" ","", $varname);
                             
                         $system = "P".$projectnumber."_ISP".$ispnumber;
-                        $category = "Digital";
+                        $category = $system."_Digital";
                         $valuename = $parname."_".$varname;
 
                             if($this->checkInfluxState() > -1){ 
