@@ -391,7 +391,7 @@ class MonitoringServer extends IPSModule {
 
                 IPS_SetName($catChild,$this->getTextAfterLastSlash($parname));
 
-                foreach($catChild as $child){
+                foreach($objchildids as $child){
                     IPS_SetVariableCustomProfile($child, "Alarm");
                 }
             
