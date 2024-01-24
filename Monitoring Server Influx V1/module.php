@@ -396,7 +396,9 @@ class MonitoringServer extends IPSModule {
                 );
                 $config_str = json_encode($config_arr);
                 IPS_SetConfiguration($catChild, $config_str);
+                IPS_ApplyChanges($catChild);
 
+                
                 foreach($objchildids as $child){
                     IPS_SetVariableCustomProfile($child, "Alarm");
                 }
