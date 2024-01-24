@@ -11,7 +11,7 @@ class MonitoringClient extends IPSModule {
         $this->RegisterPropertyInteger("ParseAnalogCategoryID","0");
 
         $this->RegisterPropertyInteger("MqttCLientID","0");
-        $this->RegisterPropertyString("Projectnumber","");
+        $this->RegisterPropertyInteger("Projectnumber","230001");
         $this->RegisterPropertyString("Projectname","");
         $this->RegisterPropertyInteger("ISP","1");
         $this->RegisterPropertyInteger("Projectyear","2023");
@@ -91,7 +91,7 @@ class MonitoringClient extends IPSModule {
             }
 
             // name object to help with debugging
-            IPS_SetName($id, "Temporary MQTT Server Device for topic " . $topic);
+            IPS_SetName($id, "Temporary MQTT Device for: " . $topic);
 
             // configure temporary device
             $config_arr = array(
@@ -101,6 +101,7 @@ class MonitoringClient extends IPSModule {
             );
             $config_str = json_encode($config_arr);
             IPS_SetConfiguration($id, $config_str);
+            IPS_SetHidden($id,true);
             IPS_ApplyChanges($id);
 
             // get Value variable and use it to publish the payload
@@ -118,17 +119,17 @@ class MonitoringClient extends IPSModule {
     public function SendTopic() {
         $mqttId = $this->ReadPropertyInteger("MqttCLientID");
         $projectyear = $this->ReadPropertyInteger("Projectyear");
-        $projectnumber = $this->ReadPropertyString("Projectnumber");
+        $projectnumber = $this->ReadPropertyInteger("Projectnumber");
         $projectname = $this->ReadPropertyString("Projectname");
         $ispnumber = $this->ReadPropertyInteger("ISP");
         $updatetime = $this->ReadPropertyInteger("Updatetime");
 
             $catIds[0]["id"] = $this->ReadPropertyInteger("ParseNotifyCategoryID");
-            $catIds[0]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Notify/";
+            $catIds[0]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Notify/";
             $catIds[1]["id"] = $this->ReadPropertyInteger("ParseAlarmCategoryID");
-            $catIds[1]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
+            $catIds[1]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
             $catIds[2]["id"] = $this->ReadPropertyInteger("ParseAnalogCategoryID");
-            $catIds[2]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
+            $catIds[2]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
 
 
 
@@ -166,17 +167,17 @@ class MonitoringClient extends IPSModule {
    
         $mqttId = $this->ReadPropertyInteger("MqttCLientID");
         $projectyear = $this->ReadPropertyInteger("Projectyear");
-        $projectnumber = $this->ReadPropertyString("Projectnumber");
+        $projectnumber = $this->ReadPropertyInteger("Projectnumber");
         $projectname = $this->ReadPropertyString("Projectname");
         $ispnumber = $this->ReadPropertyInteger("ISP");
         $updatetime = $this->ReadPropertyInteger("Updatetime");
 
             $catIds[0]["id"] = $this->ReadPropertyInteger("ParseNotifyCategoryID");
-            $catIds[0]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Notify/";
+            $catIds[0]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Notify/";
             $catIds[1]["id"] = $this->ReadPropertyInteger("ParseAlarmCategoryID");
-            $catIds[1]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
+            $catIds[1]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
             $catIds[2]["id"] = $this->ReadPropertyInteger("ParseAnalogCategoryID");
-            $catIds[2]["top"] = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
+            $catIds[2]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
 
 
 

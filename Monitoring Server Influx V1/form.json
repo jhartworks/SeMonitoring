@@ -24,7 +24,8 @@
         { "type": "ValidationTextBox", "name": "InfluxDatabase", "caption": "Influx Database" },
 
         { "type": "NumberSpinner", "name": "UpdateintervallValues", "caption": "Updateintervall Values in Seconds" },
-        { "type": "NumberSpinner", "name": "UpdateintervallAlarms", "caption": "Updateintervall Alarms in Seconds" }
+        { "type": "NumberSpinner", "name": "UpdateintervallAlarms", "caption": "Updateintervall Alarms in Seconds" },
+        { "type": "CheckBox", "name": "Debug", "caption": "Debug" }
 
     ],
     "actions":

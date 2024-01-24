@@ -7,7 +7,7 @@
 
         { "type": "SelectObject", "name": "MqttCLientID", "caption": "MQTT-Client" },
         { "type": "NumberSpinner", "name": "Projectyear", "caption": "Projectyear" },
-        { "type": "ValidationTextBox", "name": "Projectnumber", "caption": "Projectnumber" },
+        { "type": "NumberSpinner", "name": "Projectnumber", "caption": "Projectnumber" },
         { "type": "ValidationTextBox", "name": "Projectname", "caption": "Projectname" },
         { "type": "NumberSpinner", "name": "ISP", "caption": "ISP-Number" },
         { "type": "NumberSpinner", "name": "Updatetime", "caption": "Updatetime","suffix": "seconds","minimum ": "10" }

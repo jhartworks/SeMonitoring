@@ -38,8 +38,6 @@ class MonitoringServer extends IPSModule {
         $this->RegisterVariableInteger("AlarmActiveCount", "Number of Values in Alarmstate", "", 1);
         $this->RegisterVariableInteger("AnalogVarCount", "Number of Analogvalues", "", 2);
         $this->RegisterVariableInteger("DigitalVarCount", "Number of DigitalValues", "", 3);
-        $this->RegisterVariableString("InfluxState", "Influx-DB State", "", 4);
-        $this->RegisterVariableString("InfluxMessage", "Influx-DB Message", "", 5);
 
     }
 
@@ -182,6 +180,7 @@ class MonitoringServer extends IPSModule {
         $ispnumber = $this->ReadPropertyInteger("ISP");
 
         $logit = $this->ReadPropertyBoolean("LogValues");
+        $logit = $this->ReadPropertyBoolean("LogValues");
 
 
         $numberofvalues = 0;
@@ -240,6 +239,7 @@ class MonitoringServer extends IPSModule {
                             $system = "P".$projectnumber."_ISP".$ispnumber;
                             $category =  $system."_Analog";
                             $valuename = $parname."".$varname;
+
                             //IPS_LogMessage ("Analog Var-Logger", "Ready: ".$system."/".$category."/".$valuename." with Value: ".$payload);
 
                            if($this->checkInfluxState() > -1){ 
@@ -384,14 +384,25 @@ class MonitoringServer extends IPSModule {
             $catChilds = IPS_GetChildrenIDs($catAlarmId);
 
             foreach ($catChilds as $catChild) { //for each object in category
-            
+                $this->createAlarmprofile();
 
                 $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
                 $parname = IPS_GetName($catChild);
 
                 IPS_SetName($catChild,$this->getTextAfterLastSlash($parname));
+                IPS_SetVariableCustomProfile($catChild, "Alarm");
             
             } 
+        }
+    }
+
+    public function createAlarmprofile(){
+        if(!IPS_VariableProfileExists ("Alarm") ){
+
+            IPS_CreateVariableProfile("Alarm", 0);
+            IPS_SetVariableProfileAssociation("Alarm", true, "Störung", "Alert", 0xFF0000);
+            IPS_SetVariableProfileAssociation("Alarm", false, "OK", "Ok", 0x00FF00);
+
         }
     }
 
