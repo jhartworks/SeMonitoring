@@ -398,9 +398,10 @@ class MonitoringServer extends IPSModule {
                 IPS_SetConfiguration($catChild, $config_str);
                 IPS_ApplyChanges($catChild);
 
-                
+
                 foreach($objchildids as $child){
                     IPS_SetVariableCustomProfile($child, "Alarm");
+                    IPS_SetVariableCustomAction($child, 1);
                 }
             
             } 
