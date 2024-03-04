@@ -29,6 +29,7 @@ class MonitoringServer extends IPSModule {
 
         $this->RegisterPropertyInteger("UpdateintervallValues","30");
         $this->RegisterPropertyInteger("UpdateintervallAlarms","10");
+        $this->RegisterPropertyInteger("UpdateintervallForceValues","30");
 
 
         $this->RegisterTimer("UpdateAlarms", 0, 'SEMS_checkAlarms('.$this->InstanceID.');');

@@ -16,6 +16,8 @@ class MonitoringClient extends IPSModule {
         $this->RegisterPropertyInteger("ISP","1");
         $this->RegisterPropertyInteger("Projectyear","2023");
         $this->RegisterPropertyInteger("Updatetime","20");
+        $this->RegisterPropertyInteger("ForceUpdatetime","30");
+
         $this->RegisterTimer("Update", 0, 'SEMC_SendTopic('.$this->InstanceID.');');
         $this->RegisterTimer("ForceUpdate", 0, 'SEMC_ForceSendTopic('.$this->InstanceID.');');
 
