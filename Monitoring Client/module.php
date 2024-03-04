@@ -17,6 +17,7 @@ class MonitoringClient extends IPSModule {
         $this->RegisterPropertyInteger("Projectyear","2023");
         $this->RegisterPropertyInteger("Updatetime","20");
         $this->RegisterTimer("Update", 0, 'SEMC_SendTopic('.$this->InstanceID.');');
+        $this->RegisterTimer("Update", 0, 'ForceSendTopic('.$this->InstanceID.');');
 
     }
 
@@ -26,6 +27,7 @@ class MonitoringClient extends IPSModule {
         parent::ApplyChanges();
 
         $this->SetTimerInterval("Update", $this->ReadPropertyInteger("Updatetime") * 1000);
+        $this->SetTimerInterval("Update", $this->ReadPropertyInteger("Updatetime") * 1000 * 60);
 
     }
     /**

@@ -10,7 +10,8 @@
         { "type": "NumberSpinner", "name": "Projectnumber", "caption": "Projectnumber" },
         { "type": "ValidationTextBox", "name": "Projectname", "caption": "Projectname" },
         { "type": "NumberSpinner", "name": "ISP", "caption": "ISP-Number" },
-        { "type": "NumberSpinner", "name": "Updatetime", "caption": "Updatetime","suffix": "seconds","minimum ": "10" }
+        { "type": "NumberSpinner", "name": "Updatetime", "caption": "Updatetime","suffix": "seconds","minimum ": "10" },
+        { "type": "NumberSpinner", "name": "Updatetime", "caption": "Force Updatetime","suffix": "minutes","minimum ": "30" }
 
     ],
     "actions":
