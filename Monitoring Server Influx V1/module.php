@@ -251,7 +251,7 @@ class MonitoringServer extends IPSModule {
                             if ($logit == true){
                                 if($this->checkInfluxState() > -1){ 
                                     $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
-                                    IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
+                                    //IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
                                 }
                             }
 
@@ -334,7 +334,7 @@ class MonitoringServer extends IPSModule {
 
                 $td = '<tr><td>'.$smname.'</td><td>'.$time.'</td></tr>'.$tdOld;
                 $this->WriteAttributeString("AtAlarmtable", $td);
-                IPS_LogMessage ("Notify", "Alarmhistory updated");
+                //IPS_LogMessage ("Notify", "Alarmhistory updated");
 
                 
             }

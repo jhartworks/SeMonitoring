@@ -25,6 +25,8 @@
 
         { "type": "NumberSpinner", "name": "UpdateintervallValues", "caption": "Updateintervall Values in Seconds" },
         { "type": "NumberSpinner", "name": "UpdateintervallAlarms", "caption": "Updateintervall Alarms in Seconds" },
+        { "type": "NumberSpinner", "name": "UpdateintervallForceValues", "caption": "Force Updateintervall Values in Minutes" },
+
         { "type": "CheckBox", "name": "Debug", "caption": "Debug" }
 
     ],
