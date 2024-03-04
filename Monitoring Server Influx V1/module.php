@@ -32,12 +32,18 @@ class MonitoringServer extends IPSModule {
 
 
         $this->RegisterTimer("UpdateAlarms", 0, 'SEMS_checkAlarms('.$this->InstanceID.');');
-        $this->RegisterTimer("UpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.');');
+        $this->RegisterTimer("UpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.',false);');
+        $this->RegisterTimer("ForceUpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.',true);');
 
         $this->RegisterVariableInteger("AlarmVarCount", "Number of Alarmvalues", "", 0);
         $this->RegisterVariableInteger("AlarmActiveCount", "Number of Values in Alarmstate", "", 1);
         $this->RegisterVariableInteger("AnalogVarCount", "Number of Analogvalues", "", 2);
         $this->RegisterVariableInteger("DigitalVarCount", "Number of DigitalValues", "", 3);
+
+        $this->RegisterVariableString("Alarmtable", "Alarmhistorie", "~HTMLBox", 30);
+        $this->RegisterAttributeString("AtAlarmtable", "");
+
+
 
     }
 
@@ -49,6 +55,8 @@ class MonitoringServer extends IPSModule {
 
         $this->SetTimerInterval("UpdateAlarms", $this->ReadPropertyInteger("UpdateintervallAlarms") * 1000);
         $this->SetTimerInterval("UpdateValues", $this->ReadPropertyInteger("UpdateintervallValues") * 1000);
+        $this->SetTimerInterval("ForceUpdateValues", $this->ReadPropertyInteger("UpdateintervallForceValues") * 1000 * 60);
+
         $this->clearNames();
 
         // Diese Zeile nicht löschen
@@ -169,7 +177,7 @@ class MonitoringServer extends IPSModule {
     }
 
 
-    public function checkValues() {
+    public function checkValues($force) {
 
         $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
         $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
@@ -179,7 +187,6 @@ class MonitoringServer extends IPSModule {
         $updatetime = $this->ReadPropertyInteger("UpdateintervallValues");
         $ispnumber = $this->ReadPropertyInteger("ISP");
 
-        $logit = $this->ReadPropertyBoolean("LogValues");
         $logit = $this->ReadPropertyBoolean("LogValues");
 
 
@@ -215,7 +222,7 @@ class MonitoringServer extends IPSModule {
 
                         
                         $numberofvalues++;
-                        if($changedtime > $time - $updatetime){
+                        if(($changedtime > $time - $updatetime) | $force){
 
                             $parname = str_replace(" ","", $parname);
                             $varname = str_replace(" ","", $varname);
@@ -241,11 +248,13 @@ class MonitoringServer extends IPSModule {
                             $valuename = $parname."".$varname;
 
                             //IPS_LogMessage ("Analog Var-Logger", "Ready: ".$system."/".$category."/".$valuename." with Value: ".$payload);
+                            if ($logit == true){
+                                if($this->checkInfluxState() > -1){ 
+                                    $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
+                                    IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
+                                }
+                            }
 
-                           if($this->checkInfluxState() > -1){ 
-                            $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
-                            IPS_LogMessage ("Analog Var-Logger", "LOGGED: ".$system."/".$category."/".$valuename." with Value: ".$payload);
-                           }
                         }
                        
     
@@ -287,10 +296,11 @@ class MonitoringServer extends IPSModule {
                         $category = $system."_Digital";
                         $valuename = $parname."_".$varname;
 
+                        if ($logit == true){
                             if($this->checkInfluxState() > -1){ 
                                 $this->Write2Influx($payload, $ssl, $server, $port, $db, $system, $category, $valuename);
                             }
-
+                        }
 
                        }
     
@@ -301,16 +311,15 @@ class MonitoringServer extends IPSModule {
         }
         SetValueInteger($this->GetIDForIdent("DigitalVarCount"),$numberofvalues);
 
-
-
-
-
-
 }
 
 
     private function notify($trigid, $webfrontid, $targetid, $projectnumber, $projectname, $ispnr){
         
+        $tdOld = $this->ReadAttributeString("AtAlarmtable");
+        $td = $tdOld;
+
+        $time = date("Y-m-d H:i:s");
 
                 $art = $projectnumber." | ".$projectname. " | ISP ".$ispnr;
                 $ico = "Flame";
@@ -322,19 +331,49 @@ class MonitoringServer extends IPSModule {
                 $this->SetBuffer($smname, "false");   
 
                 VISU_PostNotification($webfrontid, $art, $smname, $ico, $targetid);
-                WFC_PushNotification($webfrontid, $art, $smname, "", $targetid);
+
+                $td = '<tr><td>'.$smname.'</td><td>'.$time.'</td></tr>'.$tdOld;
+                $this->WriteAttributeString("AtAlarmtable", $td);
+                IPS_LogMessage ("Notify", "Alarmhistory updated");
 
                 
             }
             elseif (GetValue($trigid) == false) {
                 $this->SetBuffer($smname, "true");
+
             }
+            $style = '<style> 
+
+            th {
+            background-color: lightblue;
+            color: white;
+              }
+          
+            td {
+            border-top: 1px solid grey;
+            text-align: center; 
+              }
+          
+            tr:hover {background-color: grey;}
+          
+          
+            </style>
+          
+          
+          
+          ';
+            $table = $style.'<table width=100%><tr><th>Name</th><th>Zeit / Datum</th></tr>'.$td.'</table>';
+            SetValueString($this->GetIDForIdent("Alarmtable"), $table);
+            IPS_LogMessage ("Notify", "Alarmhistory writen");
 
             if (GetValue($trigid) == true){
                 return true; 
             }else{
                 return false;
             }
+
+
+
     }
 
     private function getTextAfterLastSlash($inputString) {
