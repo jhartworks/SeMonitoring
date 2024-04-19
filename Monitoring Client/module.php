@@ -205,6 +205,17 @@ class MonitoringClient extends IPSModule {
 
                                 foreach ($childids as $childid){
 
+                                    foreach ($childids as $childid){
+                                        if (IPS_VariableExists($childid) != 1){
+                                            if(IPS_LinkExists($childid) == 1){
+                                                $linkInfo = IPS_GetLink($childid);
+                                                $linkTarget = $linkInfo["TargetID"];
+                                                $childid = $linkTarget;
+                                            }
+                                        }else{
+                                            $varInfo = IPS_GetVariable($childid);
+                                        }
+                                    }
                                     $varname = IPS_GetName($childid);
                                     $topic = $catId["top"]. $parname."_".$varname;
                                     $payload = round(getvalue($childid), 2);
