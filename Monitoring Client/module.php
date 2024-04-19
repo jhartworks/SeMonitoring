@@ -153,6 +153,7 @@ class MonitoringClient extends IPSModule {
                                             $linkInfo = IPS_GetLink($childid);
                                             $linkTarget = $linkInfo["TargetID"];
                                             $childid = $linkTarget;
+                                            $varInfo = IPS_GetVariable($childid); 
                                         }
                                     }else{
                                         $varInfo = IPS_GetVariable($childid);
