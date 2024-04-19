@@ -148,14 +148,22 @@ class MonitoringClient extends IPSModule {
                             $parname = IPS_GetName($catChild);
 
                                 foreach ($childids as $childid){
-
-                                    $varInfo = IPS_GetVariable($childid);
+                                    if (IPS_VariableExists($childid) != 1){
+                                        if(IPS_LinkExists($childid) == 1){
+                                            $linkInfo = IPS_GetLink($childid);
+                                            $linkTarget = $linkInfo["TargetID"];
+                                            $childid = $linkTarget;
+                                        }
+                                    }else{
+                                        $varInfo = IPS_GetVariable($childid);
+                                    }
+                                    
                                     $changedtime = $varInfo["VariableChanged"];
                                     $varname = IPS_GetName($childid);
                                     $topic = $catId["top"]. $parname."_".$varname;
                                     $time = time();
                                     $payload = round(getvalue($childid), 2);
-                                    if($changedtime > time() - $updatetime){
+                                    if($changedtime > $time - $updatetime){
                                         SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
                                     }
 
