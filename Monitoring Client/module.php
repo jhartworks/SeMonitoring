@@ -153,12 +153,11 @@ class MonitoringClient extends IPSModule {
                                             $linkInfo = IPS_GetLink($childid);
                                             $linkTarget = $linkInfo["TargetID"];
                                             $childid = $linkTarget;
-                                            $varInfo = IPS_GetVariable($childid); 
                                         }
-                                    }else{
-                                        $varInfo = IPS_GetVariable($childid);
                                     }
                                     
+                                    $varInfo = IPS_GetVariable($childid); 
+
                                     $changedtime = $varInfo["VariableChanged"];
                                     $varname = IPS_GetName($childid);
                                     $topic = $catId["top"]. $parname."_".$varname;
@@ -208,22 +207,23 @@ class MonitoringClient extends IPSModule {
 
                                     foreach ($childids as $childid){
                                         if (IPS_VariableExists($childid) != 1){
+
                                             if(IPS_LinkExists($childid) == 1){
                                                 $linkInfo = IPS_GetLink($childid);
                                                 $linkTarget = $linkInfo["TargetID"];
                                                 $childid = $linkTarget;
+                                                $varInfo = IPS_GetVariable($childid); 
                                             }
-                                        }else{
-                                            $varInfo = IPS_GetVariable($childid);
                                         }
-                                    }
-                                    $varname = IPS_GetName($childid);
-                                    $topic = $catId["top"]. $parname."_".$varname;
-                                    $payload = round(getvalue($childid), 2);
-
-                                    SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
                                     
+                                        $varInfo = IPS_GetVariable($childid); 
+                                        $varname = IPS_GetName($childid);
+                                        $topic = $catId["top"]. $parname."_".$varname;
+                                        $payload = round(getvalue($childid), 2);
 
+                                        SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                                    
+                                    }
 
                                 }
                         
