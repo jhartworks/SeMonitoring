@@ -36,6 +36,9 @@ class MonitoringServer extends IPSModule {
         $this->RegisterTimer("UpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.',false);');
         $this->RegisterTimer("ForceUpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.',true);');
 
+        $this->RegisterTimer("CheckChanges", 0, 'SEMS_checkIfSomethingChanged('.$this->InstanceID.');');
+
+
         $this->RegisterVariableInteger("AlarmVarCount", "Number of Alarmvalues", "", 0);
         $this->RegisterAttributeInteger("AlarmVarCountOld", 0);
 
@@ -62,6 +65,8 @@ class MonitoringServer extends IPSModule {
         $this->SetTimerInterval("UpdateAlarms", $this->ReadPropertyInteger("UpdateintervallAlarms") * 1000);
         $this->SetTimerInterval("UpdateValues", $this->ReadPropertyInteger("UpdateintervallValues") * 1000);
         $this->SetTimerInterval("ForceUpdateValues", $this->ReadPropertyInteger("UpdateintervallForceValues") * 1000 * 60);
+
+        $this->SetTimerInterval("CheckChanges", 10 * 1000);
 
         $this->clearNames();
 
