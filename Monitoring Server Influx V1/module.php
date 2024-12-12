@@ -132,6 +132,9 @@ class MonitoringServer extends IPSModule {
     }
 
     public function checkAlarms() {
+
+         $this->clearNames();
+
             $catAlarmId  = $this->ReadPropertyInteger("ParseAlarmCategoryID");
             $visuId = $this->ReadPropertyInteger("VisuId");
 
@@ -182,6 +185,8 @@ class MonitoringServer extends IPSModule {
 
 
     public function checkValues($force) {
+
+        $this->clearNames();
 
         $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
         $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
