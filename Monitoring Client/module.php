@@ -147,6 +147,10 @@ class MonitoringClient extends IPSModule {
 
                             $parname = IPS_GetName($catChild);
 
+                            $parname = str_replace("/","_", $parname);
+
+                            IPS_SetName($catChild, $parname);
+
                                 foreach ($childids as $childid){
                                     if (IPS_VariableExists($childid) != 1){
                                         if(IPS_LinkExists($childid) == 1){
@@ -160,6 +164,12 @@ class MonitoringClient extends IPSModule {
 
                                     $changedtime = $varInfo["VariableChanged"];
                                     $varname = IPS_GetName($childid);
+
+                   
+                                    $varname = str_replace("/","_", $varname);
+
+                                    IPS_SetName($childid, $varname);
+
                                     $topic = $catId["top"]. $parname."_".$varname;
                                     $time = time();
                                     $payload = round(getvalue($childid), 2);

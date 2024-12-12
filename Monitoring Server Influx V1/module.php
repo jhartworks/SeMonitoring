@@ -234,12 +234,6 @@ class MonitoringServer extends IPSModule {
                             $parname = str_replace(" ","", $parname);
                             $varname = str_replace(" ","", $varname);
 
-                            $parname = str_replace("(","", $parname);
-                            $varname = str_replace("(","", $varname);
-
-                            $parname = str_replace(")","", $parname);
-                            $varname = str_replace(")","", $varname);
-
                             $parname = str_replace("/","_", $parname);
                             $varname = str_replace("/","_", $varname);
 
