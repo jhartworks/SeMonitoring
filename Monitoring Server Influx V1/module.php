@@ -37,9 +37,14 @@ class MonitoringServer extends IPSModule {
         $this->RegisterTimer("ForceUpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.',true);');
 
         $this->RegisterVariableInteger("AlarmVarCount", "Number of Alarmvalues", "", 0);
+        $this->RegisterAttributeInteger("AlarmVarCountOld", 0);
+
         $this->RegisterVariableInteger("AlarmActiveCount", "Number of Values in Alarmstate", "", 1);
         $this->RegisterVariableInteger("AnalogVarCount", "Number of Analogvalues", "", 2);
+        $this->RegisterAttributeInteger("AnalogVarCountOld", 0);
+
         $this->RegisterVariableInteger("DigitalVarCount", "Number of DigitalValues", "", 3);
+        $this->RegisterAttributeInteger("DigitalVarCountOld", 0);
 
         $this->RegisterVariableString("Alarmtable", "Alarmhistorie", "~HTMLBox", 30);
         $this->RegisterAttributeString("AtAlarmtable", "");
@@ -181,10 +186,31 @@ class MonitoringServer extends IPSModule {
             }
     }
 
+    public function checkIfSomethingChanged()
+    {
+        $actAlarmCount = GetValueInteger(GetIDForIdent("AlarmVarCount"));
+        $oldAlarmCount = ReadAttributeInteger("AlarmVarCountOld");
+        if($actAlarmCount <> $oldAlarmCount){
+            WriteAttributeInteger("AlarmVarCountOld", $actAlarmCount);
+            $this->clearNames();
+        }
+        
+        $actAnalogCount = GetValueInteger(GetIDForIdent("AnalogVarCount"));
+        $oldAnalogCount = ReadAttributeInteger("AnalogVarCountOld");
+        if($actAnalogCount <> $oldAnalogCount){
+            WriteAttributeInteger("AnalogVarCountOld", $actAlarmCount);
+            $this->clearNames();
+        }
 
+        $actDigitalCount = GetValueInteger(GetIDForIdent("DigitalVarCount"));
+        $oldDigitalCount = ReadAttributeInteger("DigitalVarCountOld");
+        if($actDigitalCount <> $oldDigitalCount){
+            WriteAttributeInteger("DigitalVarCountOld", $actDigitalCount);
+            $this->clearNames();
+        }
+
+    }
     public function checkValues($force) {
-
-        $this->clearNames();
 
         $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
         $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
