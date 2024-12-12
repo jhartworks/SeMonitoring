@@ -193,21 +193,21 @@ class MonitoringServer extends IPSModule {
 
     public function checkIfSomethingChanged()
     {
-        $actAlarmCount = GetValueInteger(GetIDForIdent("AlarmVarCount"));
+        $actAlarmCount = GetValueInteger($this->GetIDForIdent("AlarmVarCount"));
         $oldAlarmCount = ReadAttributeInteger("AlarmVarCountOld");
         if($actAlarmCount <> $oldAlarmCount){
             WriteAttributeInteger("AlarmVarCountOld", $actAlarmCount);
             $this->clearNames();
         }
         
-        $actAnalogCount = GetValueInteger(GetIDForIdent("AnalogVarCount"));
+        $actAnalogCount = GetValueInteger($this->GetIDForIdent("AnalogVarCount"));
         $oldAnalogCount = ReadAttributeInteger("AnalogVarCountOld");
         if($actAnalogCount <> $oldAnalogCount){
             WriteAttributeInteger("AnalogVarCountOld", $actAlarmCount);
             $this->clearNames();
         }
 
-        $actDigitalCount = GetValueInteger(GetIDForIdent("DigitalVarCount"));
+        $actDigitalCount = GetValueInteger($this->GetIDForIdent("DigitalVarCount"));
         $oldDigitalCount = ReadAttributeInteger("DigitalVarCountOld");
         if($actDigitalCount <> $oldDigitalCount){
             WriteAttributeInteger("DigitalVarCountOld", $actDigitalCount);
