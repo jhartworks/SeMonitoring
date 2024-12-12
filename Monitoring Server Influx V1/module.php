@@ -94,6 +94,9 @@ class MonitoringServer extends IPSModule {
 
     public function Write2Influx($value, $ssl, $host, $port, $db, $system, $category, $valuename)
     {
+
+        $this->clearNames();
+
         $out = $ssl.$host.':'.$port.'/write?db='.$db.'';
         
         IPS_LogMessage ("Write 2 Influx", "Output: ".$out);
