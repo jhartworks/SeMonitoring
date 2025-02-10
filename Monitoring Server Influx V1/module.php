@@ -408,7 +408,7 @@ class MonitoringServer extends IPSModule {
           ';
             $table = $style.'<table width=100%><tr><th>Name</th><th>Zeit / Datum</th></tr>'.$td.'</table>';
             SetValueString($this->GetIDForIdent("Alarmtable"), $table);
-            IPS_LogMessage ("Notify", "Alarmhistory writen");
+            //IPS_LogMessage ("Notify", "Alarmhistory writen");
 
             if (GetValue($trigid) == true){
                 return true; 
