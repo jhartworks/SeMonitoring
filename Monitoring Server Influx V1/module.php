@@ -115,8 +115,8 @@ class MonitoringServer extends IPSModule {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt($ch, CURLOPT_POST,           1 );
 
-        IPS_LogMessage ("Write 2 Influx", "Posted Fields: ".$system.','.$category.'='.$valuename.' value=');
-        IPS_LogMessage ("Write 2 Influx", "Value: ".$value);
+        //IPS_LogMessage ("Write 2 Influx", "Posted Fields: ".$system.','.$category.'='.$valuename.' value=');
+        //IPS_LogMessage ("Write 2 Influx", "Value: ".$value);
 
 
         if ($value == "true"){
