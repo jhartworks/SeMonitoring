@@ -415,6 +415,7 @@ class MonitoringServer extends IPSModule {
                         
                         foreach ($numbersWhatsapp as $number){
                             WBM_SendMessage($idWhatsapp,$number,$paramvals);
+                            IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
                         }  
                     }
                 }
@@ -424,6 +425,7 @@ class MonitoringServer extends IPSModule {
 
                         foreach ($mailAdresses as $adress){
                             SMTP_SendMailEx($idMail, $adress, $art, $smname);
+                            IPS_LogMessage ("Sendmail " .$projectnumber , "Mail an folgende Adresse gesendet: ".$adress );
                         }
                     }
                 } 
