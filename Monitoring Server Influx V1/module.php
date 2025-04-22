@@ -20,6 +20,17 @@ class MonitoringServer extends IPSModule {
 
         $this->RegisterPropertyBoolean("SendNotification","false");
 
+        $this->RegisterPropertyBoolean("SendWhatsapp",false);
+        $this->RegisterPropertyInteger("WhatappInst", 0);
+        $this->RegisterPropertyString("WhatsappNumbers", "0159123456789,0157987456123");
+
+        $this->RegisterPropertyBoolean("SendMail",false);
+        $this->RegisterPropertyInteger("MailInst", 0);
+        $this->RegisterPropertyString("MailAdresses", "hallo@mail.com,info@stoerung.de");
+
+        $this->RegisterPropertyBoolean("SendDiscord",false);
+        $this->RegisterPropertyInteger("DiscordInst", 0);
+
         $this->RegisterPropertyBoolean("LogValues","true");
 
         $this->RegisterPropertyString("SslHttp","http://");
@@ -150,7 +161,7 @@ class MonitoringServer extends IPSModule {
             $projectname = $this->ReadPropertyString("Projectname");
             $ispnumber = $this->ReadPropertyInteger("ISP");
 
-            $sendit = $this->ReadPropertyBoolean("SendNotification");
+           
             $inalarmcount = 0;
             $alarmvalues = 0;
             $catChilds = IPS_GetChildrenIDs($catAlarmId);
@@ -170,12 +181,12 @@ class MonitoringServer extends IPSModule {
                             $time = time();
                             $payload = GetValue($childid);
                             $alarmvalues++;
-                            if ($sendit == true){
-                                if ($this->notify($childid, $visuId, $catAlarmId, $projectnumber, $projectname, $ispnumber) == true){
+
+                            
+                            if ($this->notify($childid, $visuId, $catAlarmId, $projectnumber, $projectname, $ispnumber) == true){
                                     $inalarmcount ++;
-                                }
                             }
-    
+                            
     
                         }
                 
@@ -360,6 +371,20 @@ class MonitoringServer extends IPSModule {
 
     private function notify($trigid, $webfrontid, $targetid, $projectnumber, $projectname, $ispnr){
         
+
+        $sendit         = $this->ReadPropertyBoolean("SendNotification");
+        $sendwhatsapp   = $this->ReadPropertyBoolean("SendWhatsapp");
+        $sendmail       = $this->ReadPropertyBoolean("SendMail");
+        $senddc         = $this->ReadPropertyBoolean("SendDiscord");
+
+        $idWhatsapp     = $this->ReadPropertyInteger("WhatappInst");
+        $numbersWhatsapp     = $this->ReadPropertyString("WhatsappNumbers");
+
+        $idMail         = $this->ReadPropertyInteger("MailInst");
+        $mailAdresses    = $this->ReadPropertyString("MailAdresses");
+
+        $idDc           = $this->ReadPropertyInteger("DiscordInst");
+
         $tdOld = $this->ReadAttributeString("AtAlarmtable");
         $td = $tdOld;
 
@@ -372,9 +397,42 @@ class MonitoringServer extends IPSModule {
 
             if (GetValue($trigid) == true && ($this->GetBuffer($smname) == "true"))  {
                 
-                $this->SetBuffer($smname, "false");   
+                $this->SetBuffer($smname, "false");
 
-                VISU_PostNotification($webfrontid, $art, $smname, $ico, $targetid);
+                if ($sendit == true){
+                    VISU_PostNotification($webfrontid, $art, $smname, $ico, $targetid);
+                } 
+                
+
+                if ($sendwhatsapp == true){
+
+                    if ( $idWhatsapp > 0 && $idWhatsapp != 123456){
+
+                        $paramvals = [
+                            "pn" => $art,
+                            "stoertext" => $smname
+                        ];
+                        
+                        foreach ($numbersWhatsapp as $number){
+                            WBM_SendMessage($idWhatsapp,$number,$paramvals);
+                        }  
+                    }
+                }
+
+                if ($sendmail == true){
+                    if ($idMail > 0 && $idMail != 123456){
+
+                        foreach ($mailAdresses as $adress){
+                            SMTP_SendMailEx($idMail, $adress, $art, $smname);
+                        }
+                    }
+                } 
+
+                if ($senddc == true){
+                    if ($idDc > 0 && $idDc != 123456){
+                        DWM_SendMessage($idDc, $art, $smname);
+                    }
+                } 
 
                 $td = '<tr><td>'.$smname.'</td><td>'.$time.'</td></tr>'.$tdOld;
                 $this->WriteAttributeString("AtAlarmtable", $td);

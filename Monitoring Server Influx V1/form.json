@@ -11,6 +11,18 @@
         { "type": "NumberSpinner", "name": "ISP", "caption": "ISP-Number" },
         { "type": "SelectInstance", "name": "VisuId", "caption": "Web Visu" },
         { "type": "CheckBox", "name": "SendNotification", "caption": "Send Notification" },
+
+        { "type": "CheckBox", "name": "SendWhatsapp", "caption": "Send Whatsapp" },
+        { "type": "SelectInstance", "name": "WhatappInst", "caption": "Whatsapp Insance" },
+        { "type": "ValidationTextBox", "name": "WhatsappNumbers", "caption": "Whatsapp-Numbers" },
+
+        { "type": "CheckBox", "name": "SendMail", "caption": "Send Mail" },
+        { "type": "SelectInstance", "name": "MailInst", "caption": "Mail Insance"},
+        { "type": "ValidationTextBox", "name": "MailAdresses", "caption": "Mail-Adresses" },
+
+        { "type": "CheckBox", "name": "SendDiscord", "caption": "Send Discord" },
+        { "type": "SelectInstance", "name": "DiscordInst", "caption": "Discord Insance"},
+
         { "type": "CheckBox", "name": "LogValues", "caption": "Log Values" },
 
         { "type": "Select", "name": "SslHttp", "caption": "SSL ?",
