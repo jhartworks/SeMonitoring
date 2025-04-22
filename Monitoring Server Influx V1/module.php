@@ -408,6 +408,7 @@ class MonitoringServer extends IPSModule {
 
                     if ( $idWhatsapp > 0 && $idWhatsapp != 123456){
 
+                        IPS_LogMessage ("Whatsapp" .$projectnumber , "Senden gestartet");
                         $paramvals = [
                             "pn" => $art,
                             "stoertext" => $smname
@@ -422,7 +423,7 @@ class MonitoringServer extends IPSModule {
 
                 if ($sendmail == true){
                     if ($idMail > 0 && $idMail != 123456){
-
+                        IPS_LogMessage ("Sendmail " .$projectnumber , "Mailing gestartet");
                         foreach ($mailAdresses as $adress){
                             SMTP_SendMailEx($idMail, $adress, $art, $smname);
                             IPS_LogMessage ("Sendmail " .$projectnumber , "Mail an folgende Adresse gesendet: ".$adress );
