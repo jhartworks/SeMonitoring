@@ -414,7 +414,9 @@ class MonitoringServer extends IPSModule {
                             "stoertext" => $smname
                         ];
                         
-                        foreach ($numbersWhatsapp as $number){
+                        $numbers = str_getcsv($numbersWhatsapp);
+
+                        foreach ($numbers as $number){
                             WBM_SendMessage($idWhatsapp,$number,$paramvals);
                             IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
                         }  
@@ -424,7 +426,10 @@ class MonitoringServer extends IPSModule {
                 if ($sendmail == true){
                     if ($idMail > 0 && $idMail != 123456){
                         IPS_LogMessage ("Sendmail " .$projectnumber , "Mailing gestartet");
-                        foreach ($mailAdresses as $adress){
+
+                        $adresses = str_getcsv($mailAdresses);
+
+                        foreach ($adresses as $adress){
                             SMTP_SendMailEx($idMail, $adress, $art, $smname);
                             IPS_LogMessage ("Sendmail " .$projectnumber , "Mail an folgende Adresse gesendet: ".$adress );
                         }
