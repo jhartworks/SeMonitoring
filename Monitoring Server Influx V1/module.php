@@ -413,13 +413,17 @@ class MonitoringServer extends IPSModule {
                             "pn" => $art,
                             "stoertext" => $smname
                         ];
-                        
-                        $numbers = str_getcsv($numbersWhatsapp);
-
-                        foreach ($numbers as $number){
-                            WBM_SendMessage($idWhatsapp,$number,$paramvals);
-                            IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
-                        }  
+                        if ($numbersWhatsapp != ""){
+                            $numbers = str_getcsv($numbersWhatsapp);
+                            foreach ($numbers as $number){
+                                WBM_SendMessageEx($idWhatsapp,$number,$paramvals);
+                                IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
+                            }
+                        }else
+                        {
+                            WBM_SendMessage($idWhatsapp,$paramvals);
+                            IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an konfigurierte Nummern gesendet");
+                        }
                     }
                 }
 
