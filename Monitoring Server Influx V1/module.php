@@ -641,12 +641,12 @@ class MonitoringServer extends IPSModule {
  
             // Temp-Dateipfad vorbereiten
 
-            ftp_chdir($ftp, $ftpPath);
+            //ftp_chdir($ftp, $ftpPath);
 
             // Verarbeitungsfunktion
-            $this->generateAndUploadCsv($catNotifyId, $ftp, "notify.csv", $projectName.$ispName."notify.csv");
-            $this->generateAndUploadCsv($catAlarmId,  $ftp, "alarms.csv", $projectName.$ispName."alarms.csv");
-            $this->generateAndUploadCsv($catAnalogId, $ftp, "analog.csv", $projectName.$ispName."analog.csv");
+            $this->generateAndUploadCsv($catNotifyId, $ftp, "$ftpPath/notify.csv", $projectName.$ispName."notify.csv");
+            $this->generateAndUploadCsv($catAlarmId,  $ftp, "$ftpPath/alarms.csv", $projectName.$ispName."alarms.csv");
+            $this->generateAndUploadCsv($catAnalogId, $ftp, "$ftpPath/analog.csv", $projectName.$ispName."analog.csv");
 
             ftp_close($ftp);
         }
