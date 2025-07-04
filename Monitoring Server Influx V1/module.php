@@ -653,7 +653,7 @@ class MonitoringServer extends IPSModule {
     private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
         if ($catId <= 0) return;
 
-        $data = "Parentname;Childname;Wert\n";
+        $data = "Parentname;Childname;Value\n";
 
         //Objects in CAT!               //CAT
         $catChilds = IPS_GetChildrenIDs($catId); 
@@ -669,6 +669,8 @@ class MonitoringServer extends IPSModule {
                     $varName = IPS_GetName($varId);
                     $formattedValue = GetValueFormatted($varId);
                     $data .= "\"{$parentName}\";\"{$varName}\";\"{$formattedValue}\"\n";
+                    
+                    IPS_LogMessage ("Filecontens", $data);
                 }
             }
         }
