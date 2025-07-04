@@ -582,7 +582,7 @@ class MonitoringServer extends IPSModule {
         }
     }
 
-    private function sendFtp(){
+    public function sendFtp(){
         $goforit = $this->ReadPropertyBoolean("SendFtp");
         $ftp_server = $this->ReadPropertyString("FtpHost");
         $ftp_user_name = $this->ReadPropertyString("FtpUser");
