@@ -629,7 +629,7 @@ class MonitoringServer extends IPSModule {
 
             // Pfad erstellen
             $ftpPath = "$yearName/$projectName/$ispName";
-            ftp_mkdir($ftp, $currentPath);
+            ftp_mkdir($ftp, $ftpPath);
 /*             $pathParts = explode("/", $ftpPath);
             $currentPath = "";
             foreach ($pathParts as $part) {
@@ -640,12 +640,13 @@ class MonitoringServer extends IPSModule {
             }
  */
             // Temp-Dateipfad vorbereiten
-            
+
+            ftp_chdir($ftp, $ftpPath);
 
             // Verarbeitungsfunktion
-            $this->generateAndUploadCsv($catNotifyId, $ftp, $ftpPath."/notify.csv", $projectName.$ispName."notify.csv");
-            $this->generateAndUploadCsv($catAlarmId,  $ftp, $ftpPath."/alarms.csv", $projectName.$ispName."alarms.csv");
-            $this->generateAndUploadCsv($catAnalogId, $ftp, $ftpPath."/analog.csv", $projectName.$ispName."analog.csv");
+            $this->generateAndUploadCsv($catNotifyId, $ftp, "notify.csv", $projectName.$ispName."notify.csv");
+            $this->generateAndUploadCsv($catAlarmId,  $ftp, "alarms.csv", $projectName.$ispName."alarms.csv");
+            $this->generateAndUploadCsv($catAnalogId, $ftp, "analog.csv", $projectName.$ispName."analog.csv");
 
            // ftp_close($ftp);
         }
@@ -687,6 +688,7 @@ class MonitoringServer extends IPSModule {
         //IPS_LogMessage ("File Create", "File Put State/Size: ".$state); 
 
         // Lade hoch
+        IPS_LogMessage("FTP", "Upload: local={$path}, remote={$remotePath}");
         $putstate = ftp_put($ftp, $remotePath, $path, FTP_BINARY);
         //IPS_LogMessage ("FTP", "FTP Put State: ".$putstate);
     }
