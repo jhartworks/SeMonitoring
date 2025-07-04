@@ -639,14 +639,14 @@ class MonitoringServer extends IPSModule {
             }
 
             // Temp-Dateipfad vorbereiten
-            $tmpDir = sys_get_temp_dir();
+            
 
             // Verarbeitungsfunktion
-            $this->generateAndUploadCsv($catNotifyId, $ftp, "$ftpPath/notify.csv", "$tmpDir/notify.csv");
-            $this->generateAndUploadCsv($catAlarmId,  $ftp, "$ftpPath/alarms.csv", "$tmpDir/alarms.csv");
-            $this->generateAndUploadCsv($catAnalogId, $ftp, "$ftpPath/analog.csv", "$tmpDir/analog.csv");
+            $this->generateAndUploadCsv($catNotifyId, $ftp, $ftpPath."/notify.csv", $projectName.$ispName."notify.csv");
+            $this->generateAndUploadCsv($catAlarmId,  $ftp, $ftpPath."/alarms.csv", $projectName.$ispName."alarms.csv");
+            $this->generateAndUploadCsv($catAnalogId, $ftp, $ftpPath."/analog.csv", $projectName.$ispName."analog.csv");
 
-            ftp_close($ftp);
+           // ftp_close($ftp);
         }
     }
 
@@ -674,7 +674,13 @@ class MonitoringServer extends IPSModule {
         }
 
         // Schreibe Datei lokal
-        $state = file_put_contents($localPath, $data);
+        //$state = file_put_contents($localPath, $data);
+
+
+        $file = fopen($localPath, "w"); 
+        $state = fwrite($file, $data); 
+        fclose($file); 
+
         IPS_LogMessage ("File Create", "File Put State/Size: ".$state); 
 
         // Lade hoch
