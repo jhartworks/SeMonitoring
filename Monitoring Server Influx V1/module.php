@@ -588,8 +588,8 @@ private function sendFtp(){
     $ftp_user_name = $this->ReadPropertyString("FtpUser");
     $ftp_user_pass = $this->ReadPropertyString("FtpPassword");
 
-    if ($goforit == true){
-
+    if ($goforit == true or $goforit == 1){
+        IPS_LogMessage ("FTP", "FTP Is ON!!!");
         $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
         $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
         $catAlarmId   = $this->ReadPropertyInteger("ParseAlarmCategoryID");
@@ -614,13 +614,15 @@ private function sendFtp(){
 
         $ftp = ftp_ssl_connect($ftp_server);
         if (!$ftp) {
-            echo "FTP-Verbindung fehlgeschlagen.";
+            IPS_LogMessage ("FTP", "FTP-Verbindung fehlgeschlagen.");
+            ///echo "FTP-Verbindung fehlgeschlagen.";
             return;
         }
 
         $login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
         if (!$login_result) {
-            echo "FTP-Login fehlgeschlagen.";
+            IPS_LogMessage ("FTP", "FTP-Login fehlgeschlagen.");
+            ///echo "FTP-Login fehlgeschlagen.";
             ftp_close($ftp);
             return;
         }
