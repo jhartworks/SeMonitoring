@@ -84,7 +84,7 @@ class MonitoringServer extends IPSModule {
         $this->SetTimerInterval("UpdateAlarms", $this->ReadPropertyInteger("UpdateintervallAlarms") * 1000);
         $this->SetTimerInterval("UpdateValues", $this->ReadPropertyInteger("UpdateintervallValues") * 1000);
         $this->SetTimerInterval("ForceUpdateValues", $this->ReadPropertyInteger("UpdateintervallForceValues") * 1000 * 60);
-        $this->SetTimerInterval("UpdateFtp", $this->ReadPropertyInteger("UpdateintervallSendFtp") * 1000 * 60);
+        $this->SetTimerInterval("UpdateFtp", $this->ReadPropertyInteger("UpdateintervallSendFtp") * 1000);
 
         $this->SetTimerInterval("CheckChanges", 10 * 1000);
 
@@ -582,99 +582,99 @@ class MonitoringServer extends IPSModule {
         }
     }
 
-private function sendFtp(){
-    $goforit = $this->ReadPropertyBoolean("SendFtp");
-    $ftp_server = $this->ReadPropertyString("FtpHost");
-    $ftp_user_name = $this->ReadPropertyString("FtpUser");
-    $ftp_user_pass = $this->ReadPropertyString("FtpPassword");
+    private function sendFtp(){
+        $goforit = $this->ReadPropertyBoolean("SendFtp");
+        $ftp_server = $this->ReadPropertyString("FtpHost");
+        $ftp_user_name = $this->ReadPropertyString("FtpUser");
+        $ftp_user_pass = $this->ReadPropertyString("FtpPassword");
 
-    if ($goforit == true or $goforit == 1){
-        IPS_LogMessage ("FTP", "FTP Is ON!!!");
-        $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
-        $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
-        $catAlarmId   = $this->ReadPropertyInteger("ParseAlarmCategoryID");
+        if ($goforit == true or $goforit == 1){
+            IPS_LogMessage ("FTP", "FTP Is ON!!!");
+            $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
+            $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
+            $catAlarmId   = $this->ReadPropertyInteger("ParseAlarmCategoryID");
 
-        $ispName = "";
-        $projectName = "";
-        $yearName = "";
+            $ispName = "";
+            $projectName = "";
+            $yearName = "";
 
-        $usedCat = 0;
-        if ($catNotifyId > 0) $usedCat = $catNotifyId;
-        elseif ($catAnalogId > 0) $usedCat = $catAnalogId;
-        elseif ($catAlarmId > 0) $usedCat = $catAlarmId;
+            $usedCat = 0;
+            if ($catNotifyId > 0) $usedCat = $catNotifyId;
+            elseif ($catAnalogId > 0) $usedCat = $catAnalogId;
+            elseif ($catAlarmId > 0) $usedCat = $catAlarmId;
 
-        if ($usedCat > 0){
-            $parentid = IPS_GetParent($usedCat);
-            $ispName = IPS_GetName($parentid);
-            $projectId = IPS_GetParent($parentid);
-            $projectName = IPS_GetName($projectId);
-            $yearId = IPS_GetParent($projectId);
-            $yearName = IPS_GetName($yearId);
-        }
+            if ($usedCat > 0){
+                $parentid = IPS_GetParent($usedCat);
+                $ispName = IPS_GetName($parentid);
+                $projectId = IPS_GetParent($parentid);
+                $projectName = IPS_GetName($projectId);
+                $yearId = IPS_GetParent($projectId);
+                $yearName = IPS_GetName($yearId);
+            }
 
-        $ftp = ftp_ssl_connect($ftp_server);
-        if (!$ftp) {
-            IPS_LogMessage ("FTP", "FTP-Verbindung fehlgeschlagen.");
-            ///echo "FTP-Verbindung fehlgeschlagen.";
-            return;
-        }
+            $ftp = ftp_ssl_connect($ftp_server);
+            if (!$ftp) {
+                IPS_LogMessage ("FTP", "FTP-Verbindung fehlgeschlagen.");
+                ///echo "FTP-Verbindung fehlgeschlagen.";
+                return;
+            }
 
-        $login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
-        if (!$login_result) {
-            IPS_LogMessage ("FTP", "FTP-Login fehlgeschlagen.");
-            ///echo "FTP-Login fehlgeschlagen.";
+            $login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
+            if (!$login_result) {
+                IPS_LogMessage ("FTP", "FTP-Login fehlgeschlagen.");
+                ///echo "FTP-Login fehlgeschlagen.";
+                ftp_close($ftp);
+                return;
+            }
+
+            // Pfad erstellen
+            $ftpPath = "$yearName/$projectName/$ispName";
+            $pathParts = explode("/", $ftpPath);
+            $currentPath = "";
+            foreach ($pathParts as $part) {
+                $currentPath .= "$part/";
+                if (!@ftp_chdir($ftp, $currentPath)) {
+                    ftp_mkdir($ftp, $currentPath);
+                }
+            }
+
+            // Temp-Dateipfad vorbereiten
+            $tmpDir = sys_get_temp_dir();
+
+            // Verarbeitungsfunktion
+            $this->generateAndUploadCsv($catNotifyId, $ftp, "$ftpPath/notify.csv", "$tmpDir/notify.csv");
+            $this->generateAndUploadCsv($catAlarmId,  $ftp, "$ftpPath/alarms.csv", "$tmpDir/alarms.csv");
+            $this->generateAndUploadCsv($catAnalogId, $ftp, "$ftpPath/analog.csv", "$tmpDir/analog.csv");
+
             ftp_close($ftp);
-            return;
-        }
-
-        // Pfad erstellen
-        $ftpPath = "$yearName/$projectName/$ispName";
-        $pathParts = explode("/", $ftpPath);
-        $currentPath = "";
-        foreach ($pathParts as $part) {
-            $currentPath .= "$part/";
-            if (!@ftp_chdir($ftp, $currentPath)) {
-                ftp_mkdir($ftp, $currentPath);
-            }
-        }
-
-        // Temp-Dateipfad vorbereiten
-        $tmpDir = sys_get_temp_dir();
-
-        // Verarbeitungsfunktion
-        $this->generateAndUploadCsv($catNotifyId, $ftp, "$ftpPath/notify.csv", "$tmpDir/notify.csv");
-        $this->generateAndUploadCsv($catAlarmId,  $ftp, "$ftpPath/alarms.csv", "$tmpDir/alarms.csv");
-        $this->generateAndUploadCsv($catAnalogId, $ftp, "$ftpPath/analog.csv", "$tmpDir/analog.csv");
-
-        ftp_close($ftp);
-    }
-}
-
-private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
-    if ($catId <= 0) return;
-
-    $data = "Name;Wert\n";
-
-    $catChilds = IPS_GetChildrenIDs($catId);
-    foreach ($catChilds as $catChild) {
-        $objchildids = IPS_GetChildrenIDs($catChild);
-        $parentName = IPS_GetName($catChild);
-
-        foreach ($objchildids as $varId) {
-            if (IPS_VariableExists($varId)) {
-                $varName = IPS_GetName($varId);
-                $formattedValue = GetValueFormatted($varId);
-                $data .= "\"{$parentName}_{$varName}\";\"{$formattedValue}\"\n";
-            }
         }
     }
 
-    // Schreibe Datei lokal
-    file_put_contents($localPath, $data);
+    private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
+        if ($catId <= 0) return;
 
-    // Lade hoch
-    ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
-}
+        $data = "Name;Wert\n";
+
+        $catChilds = IPS_GetChildrenIDs($catId);
+        foreach ($catChilds as $catChild) {
+            $objchildids = IPS_GetChildrenIDs($catChild);
+            $parentName = IPS_GetName($catChild);
+
+            foreach ($objchildids as $varId) {
+                if (IPS_VariableExists($varId)) {
+                    $varName = IPS_GetName($varId);
+                    $formattedValue = GetValueFormatted($varId);
+                    $data .= "\"{$parentName}_{$varName}\";\"{$formattedValue}\"\n";
+                }
+            }
+        }
+
+        // Schreibe Datei lokal
+        file_put_contents($localPath, $data);
+
+        // Lade hoch
+        ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
+    }
 
 }
 ?>
