@@ -641,7 +641,7 @@ class MonitoringServer extends IPSModule {
  
             // Temp-Dateipfad vorbereiten
 
-            //ftp_chdir($ftp, $ftpPath);
+            ftp_chdir($ftp, $ftpPath);
 
             // Verarbeitungsfunktion
             $this->generateAndUploadCsv($catNotifyId, $ftp, "notify.csv", $projectName.$ispName."notify.csv");
@@ -683,7 +683,7 @@ class MonitoringServer extends IPSModule {
         //$state = file_put_contents($localPath, $data);
         IPS_LogMessage("FTP", "Lokaler Pfad: " . $path);
         IPS_LogMessage("FTP", "Remote Pfad: " . $remotePath);
-        
+
         IPS_LogMessage("FTP", "Dateigröße lokal: " . filesize($path));
 
         $file = fopen($path, "w"); 
