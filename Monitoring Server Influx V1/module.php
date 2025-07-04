@@ -629,26 +629,26 @@ class MonitoringServer extends IPSModule {
 
             // Pfad erstellen
             $ftpPath = "$yearName/$projectName/$ispName";
-            ftp_mkdir($ftp, $ftpPath);
-/*             $pathParts = explode("/", $ftpPath);
+            //ftp_mkdir($ftp, $ftpPath);
+            $pathParts = explode("/", $ftpPath);
             $currentPath = "";
             foreach ($pathParts as $part) {
                 $currentPath .= "$part/";
                 if (!@ftp_chdir($ftp, $currentPath)) {
-                    ftp_mkdir($ftp, $currentPath);
+                    @ftp_mkdir($ftp, $currentPath);
                 }
             }
- */
+ 
             // Temp-Dateipfad vorbereiten
 
-            ftp_chdir($ftp, $ftpPath);
+            //ftp_chdir($ftp, $ftpPath);
 
             // Verarbeitungsfunktion
             $this->generateAndUploadCsv($catNotifyId, $ftp, "notify.csv", $projectName.$ispName."notify.csv");
             $this->generateAndUploadCsv($catAlarmId,  $ftp, "alarms.csv", $projectName.$ispName."alarms.csv");
             $this->generateAndUploadCsv($catAnalogId, $ftp, "analog.csv", $projectName.$ispName."analog.csv");
 
-           // ftp_close($ftp);
+            ftp_close($ftp);
         }
     }
 
@@ -678,9 +678,14 @@ class MonitoringServer extends IPSModule {
         }
 
         // Schreibe Datei lokal
-        //$state = file_put_contents($localPath, $data);
-
         $path ='/var/lib/symcon/user/'.$localPath;
+
+        //$state = file_put_contents($localPath, $data);
+        IPS_LogMessage("FTP", "Lokaler Pfad: " . $path);
+        IPS_LogMessage("FTP", "Remote Pfad: " . $remotePath);
+        
+        IPS_LogMessage("FTP", "Dateigröße lokal: " . filesize($path));
+
         $file = fopen($path, "w"); 
         $state = fwrite($file, $data); 
         fclose($file); 
