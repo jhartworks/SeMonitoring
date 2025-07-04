@@ -676,15 +676,15 @@ class MonitoringServer extends IPSModule {
         // Schreibe Datei lokal
         //$state = file_put_contents($localPath, $data);
 
-
-        $file = fopen($localPath, "w"); 
+        $path ='/var/lib/symcon/user/'.$localPath;
+        $file = fopen($path, "w"); 
         $state = fwrite($file, $data); 
         fclose($file); 
 
         IPS_LogMessage ("File Create", "File Put State/Size: ".$state); 
 
         // Lade hoch
-        $putstate = ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
+        $putstate = ftp_put($ftp, $remotePath, $path, FTP_BINARY);
         IPS_LogMessage ("FTP", "FTP Put State: ".$putstate);
     }
 
