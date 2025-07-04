@@ -589,7 +589,7 @@ class MonitoringServer extends IPSModule {
         $ftp_user_pass = $this->ReadPropertyString("FtpPassword");
 
         if ($goforit == true or $goforit == 1){
-            IPS_LogMessage ("FTP", "FTP Is ON!!!");
+            //IPS_LogMessage ("FTP", "FTP Is ON!!!");
             $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
             $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
             $catAlarmId   = $this->ReadPropertyInteger("ParseAlarmCategoryID");
@@ -653,27 +653,33 @@ class MonitoringServer extends IPSModule {
     private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
         if ($catId <= 0) return;
 
-        $data = "Name;Wert\n";
+        $data = "Parentname;Childname;Wert\n";
 
-        $catChilds = IPS_GetChildrenIDs($catId);
+        //Objects in CAT!               //CAT
+        $catChilds = IPS_GetChildrenIDs($catId); 
+                            //Object
         foreach ($catChilds as $catChild) {
-            $objchildids = IPS_GetChildrenIDs($catChild);
+            //Variables of Object           //Singel CAT Object
+            $objchildids = IPS_GetChildrenIDs($catChild); 
             $parentName = IPS_GetName($catChild);
 
             foreach ($objchildids as $varId) {
+
                 if (IPS_VariableExists($varId)) {
                     $varName = IPS_GetName($varId);
                     $formattedValue = GetValueFormatted($varId);
-                    $data .= "\"{$parentName}_{$varName}\";\"{$formattedValue}\"\n";
+                    $data .= "\"{$parentName}\";\"{$varName}\";\"{$formattedValue}\"\n";
                 }
             }
         }
 
         // Schreibe Datei lokal
-        file_put_contents($localPath, $data);
+        $state = file_put_contents($localPath, $data);
+        IPS_LogMessage ("File Create", "File Put State/Size: ".$state); 
 
         // Lade hoch
-        ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
+        $putstate = ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
+        IPS_LogMessage ("FTP", "FTP Put State: ".$putstate);
     }
 
 }
