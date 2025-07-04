@@ -612,7 +612,7 @@ private function sendFtp(){
             $yearName = IPS_GetName($yearId);
         }
 
-        $ftp = ftp_connect($ftp_server);
+        $ftp = ftp_ssl_connect($ftp_server);
         if (!$ftp) {
             echo "FTP-Verbindung fehlgeschlagen.";
             return;
