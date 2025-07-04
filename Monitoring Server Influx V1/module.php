@@ -582,121 +582,107 @@ class MonitoringServer extends IPSModule {
         }
     }
 
-    public function sendFtp(){
-        $goforit = $this->ReadPropertyBoolean("SendFtp");
-        $ftp_server = $this->ReadPropertyString("FtpHost");
-        $ftp_user_name = $this->ReadPropertyString("FtpUser");
-        $ftp_user_pass = $this->ReadPropertyString("FtpPassword");
+public function sendFtp() {
+    $goforit = $this->ReadPropertyBoolean("SendFtp");
+    $ftp_server = $this->ReadPropertyString("FtpHost");
+    $ftp_user_name = $this->ReadPropertyString("FtpUser");
+    $ftp_user_pass = $this->ReadPropertyString("FtpPassword");
 
-        if ($goforit == true or $goforit == 1){
-            //IPS_LogMessage ("FTP", "FTP Is ON!!!");
-            $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
-            $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
-            $catAlarmId   = $this->ReadPropertyInteger("ParseAlarmCategoryID");
+    if ($goforit !== true && $goforit !== 1) return;
 
-            $ispName = "";
-            $projectName = "";
-            $yearName = "";
+    $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
+    $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
+    $catAlarmId   = $this->ReadPropertyInteger("ParseAlarmCategoryID");
 
-            $usedCat = 0;
-            if ($catNotifyId > 0) $usedCat = $catNotifyId;
-            elseif ($catAnalogId > 0) $usedCat = $catAnalogId;
-            elseif ($catAlarmId > 0) $usedCat = $catAlarmId;
+    $ispName = "";
+    $projectName = "";
+    $yearName = "";
 
-            if ($usedCat > 0){
-                $parentid = IPS_GetParent($usedCat);
-                $ispName = IPS_GetName($parentid);
-                $projectId = IPS_GetParent($parentid);
-                $projectName = IPS_GetName($projectId);
-                $yearId = IPS_GetParent($projectId);
-                $yearName = IPS_GetName($yearId);
+    $usedCat = 0;
+    if ($catNotifyId > 0) $usedCat = $catNotifyId;
+    elseif ($catAnalogId > 0) $usedCat = $catAnalogId;
+    elseif ($catAlarmId > 0) $usedCat = $catAlarmId;
+
+    if ($usedCat > 0) {
+        $parentid = IPS_GetParent($usedCat);
+        $ispName = IPS_GetName($parentid);
+        $projectId = IPS_GetParent($parentid);
+        $projectName = IPS_GetName($projectId);
+        $yearId = IPS_GetParent($projectId);
+        $yearName = IPS_GetName($yearId);
+    }
+
+    $ftp = ftp_ssl_connect($ftp_server);
+    if (!$ftp) {
+        IPS_LogMessage("FTP", "FTP-Verbindung fehlgeschlagen.");
+        return;
+    }
+
+    $login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
+    if (!$login_result) {
+        IPS_LogMessage("FTP", "FTP-Login fehlgeschlagen.");
+        ftp_close($ftp);
+        return;
+    }
+
+    ftp_pasv($ftp, true); // Aktiviert passiven Modus
+
+    // Remote-Verzeichnis erzeugen (rekursiv)
+    $ftpPath = "$yearName/$projectName/$ispName";
+    $parts = explode("/", $ftpPath);
+    $currentPath = "";
+    foreach ($parts as $part) {
+        $currentPath .= "$part/";
+        @ftp_mkdir($ftp, $currentPath); // ignoriert Fehler, wenn Verzeichnis schon existiert
+    }
+
+    $tmpDir = "/var/lib/symcon/user/";
+
+    $this->generateAndUploadCsv($catNotifyId, $ftp, "$ftpPath/notify.csv",  $tmpDir.$projectName.$ispName."_notify.csv");
+    $this->generateAndUploadCsv($catAlarmId,  $ftp, "$ftpPath/alarms.csv",  $tmpDir.$projectName.$ispName."_alarms.csv");
+    $this->generateAndUploadCsv($catAnalogId, $ftp, "$ftpPath/analog.csv",  $tmpDir.$projectName.$ispName."_analog.csv");
+
+    ftp_close($ftp);
+}
+
+private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
+    if ($catId <= 0) return;
+
+    $data = "Parentname;Childname;Value\n";
+
+    $catChilds = IPS_GetChildrenIDs($catId); 
+    foreach ($catChilds as $catChild) {
+        $objchildids = IPS_GetChildrenIDs($catChild); 
+        $parentName = IPS_GetName($catChild);
+
+        foreach ($objchildids as $varId) {
+            if (IPS_VariableExists($varId)) {
+                $varName = IPS_GetName($varId);
+                $formattedValue = GetValueFormatted($varId);
+                $data .= "\"{$parentName}\";\"{$varName}\";\"{$formattedValue}\"\n";
             }
-
-            $ftp = ftp_ssl_connect($ftp_server);
-            if (!$ftp) {
-                IPS_LogMessage ("FTP", "FTP-Verbindung fehlgeschlagen.");
-                ///echo "FTP-Verbindung fehlgeschlagen.";
-                return;
-            }
-
-            $login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
-            if (!$login_result) {
-                IPS_LogMessage ("FTP", "FTP-Login fehlgeschlagen.");
-                ///echo "FTP-Login fehlgeschlagen.";
-                ftp_close($ftp);
-                return;
-            }
-
-            // Pfad erstellen
-            $ftpPath = "$yearName/$projectName/$ispName";
-            //ftp_mkdir($ftp, $ftpPath);
-            $pathParts = explode("/", $ftpPath);
-            $currentPath = "";
-            foreach ($pathParts as $part) {
-                $currentPath .= "$part/";
-                if (!@ftp_chdir($ftp, $currentPath)) {
-                    @ftp_mkdir($ftp, $currentPath);
-                }
-            }
- 
-            // Temp-Dateipfad vorbereiten
-
-            //ftp_chdir($ftp, $ftpPath);
-
-            // Verarbeitungsfunktion
-            $this->generateAndUploadCsv($catNotifyId, $ftp, "$ftpPath/notify.csv", $projectName.$ispName."notify.csv");
-            $this->generateAndUploadCsv($catAlarmId,  $ftp, "$ftpPath/alarms.csv", $projectName.$ispName."alarms.csv");
-            $this->generateAndUploadCsv($catAnalogId, $ftp, "$ftpPath/analog.csv", $projectName.$ispName."analog.csv");
-
-            ftp_close($ftp);
         }
     }
 
-    private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
-        if ($catId <= 0) return;
+    // Datei lokal schreiben
+    $file = fopen($localPath, "w");
+    $state = fwrite($file, $data);
+    fclose($file);
 
-        $data = "Parentname;Childname;Value\n";
+    // Logging
+    IPS_LogMessage("FTP", "Lokaler Pfad: " . $localPath);
+    IPS_LogMessage("FTP", "Remote Pfad: " . $remotePath);
+    IPS_LogMessage("FTP", "Dateigröße lokal: " . filesize($localPath));
 
-        //Objects in CAT!               //CAT
-        $catChilds = IPS_GetChildrenIDs($catId); 
-                            //Object
-        foreach ($catChilds as $catChild) {
-            //Variables of Object           //Singel CAT Object
-            $objchildids = IPS_GetChildrenIDs($catChild); 
-            $parentName = IPS_GetName($catChild);
-
-            foreach ($objchildids as $varId) {
-
-                if (IPS_VariableExists($varId)) {
-                    $varName = IPS_GetName($varId);
-                    $formattedValue = GetValueFormatted($varId);
-                    $data .= "\"{$parentName}\";\"{$varName}\";\"{$formattedValue}\"\n";
-                    
-                    //IPS_LogMessage ("Filecontens", $data);
-                }
-            }
-        }
-
-        // Schreibe Datei lokal
-        $path ='/var/lib/symcon/user/'.$localPath;
-
-        //$state = file_put_contents($localPath, $data);
-        IPS_LogMessage("FTP", "Lokaler Pfad: " . $path);
-        IPS_LogMessage("FTP", "Remote Pfad: " . $remotePath);
-
-        IPS_LogMessage("FTP", "Dateigröße lokal: " . filesize($path));
-
-        $file = fopen($path, "w"); 
-        $state = fwrite($file, $data); 
-        fclose($file); 
-
-        //IPS_LogMessage ("File Create", "File Put State/Size: ".$state); 
-
-        // Lade hoch
-        IPS_LogMessage("FTP", "Upload: local={$path}, remote={$remotePath}");
-        $putstate = ftp_put($ftp, $remotePath, $path, FTP_BINARY);
-        //IPS_LogMessage ("FTP", "FTP Put State: ".$putstate);
+    // Upload
+    $putstate = ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
+    if ($putstate) {
+        IPS_LogMessage("FTP", "Upload OK: $remotePath");
+    } else {
+        IPS_LogMessage("FTP", "Upload FEHLGESCHLAGEN: $remotePath");
     }
+}
+
 
 }
 ?>
