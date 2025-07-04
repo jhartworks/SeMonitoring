@@ -28,6 +28,11 @@ class MonitoringServer extends IPSModule {
         $this->RegisterPropertyInteger("MailInst", 0);
         $this->RegisterPropertyString("MailAdresses", "hallo@mail.com,info@stoerung.de");
 
+        $this->RegisterPropertyBoolean("SendFtp",false);
+        $this->RegisterPropertyString("FtpHost", "your-server.de");
+        $this->RegisterPropertyString("FtpUser", "YourUser");
+        $this->RegisterPropertyString("FtpPassword", "YourPass");
+
         $this->RegisterPropertyBoolean("SendDiscord",false);
         $this->RegisterPropertyInteger("DiscordInst", 0);
 
@@ -41,11 +46,14 @@ class MonitoringServer extends IPSModule {
         $this->RegisterPropertyInteger("UpdateintervallValues","30");
         $this->RegisterPropertyInteger("UpdateintervallAlarms","10");
         $this->RegisterPropertyInteger("UpdateintervallForceValues","30");
+        $this->RegisterPropertyInteger("UpdateintervallSendFtp","30");
 
 
         $this->RegisterTimer("UpdateAlarms", 0, 'SEMS_checkAlarms('.$this->InstanceID.');');
         $this->RegisterTimer("UpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.',false);');
         $this->RegisterTimer("ForceUpdateValues", 0, 'SEMS_checkValues('.$this->InstanceID.',true);');
+        $this->RegisterTimer("UpdateFtp", 0, 'SEMS_sendFtp('.$this->InstanceID.');');
+
 
         $this->RegisterTimer("CheckChanges", 0, 'SEMS_checkIfSomethingChanged('.$this->InstanceID.');');
 
@@ -76,6 +84,7 @@ class MonitoringServer extends IPSModule {
         $this->SetTimerInterval("UpdateAlarms", $this->ReadPropertyInteger("UpdateintervallAlarms") * 1000);
         $this->SetTimerInterval("UpdateValues", $this->ReadPropertyInteger("UpdateintervallValues") * 1000);
         $this->SetTimerInterval("ForceUpdateValues", $this->ReadPropertyInteger("UpdateintervallForceValues") * 1000 * 60);
+        $this->SetTimerInterval("UpdateFtp", $this->ReadPropertyInteger("UpdateintervallSendFtp") * 1000 * 60);
 
         $this->SetTimerInterval("CheckChanges", 10 * 1000);
 
@@ -91,6 +100,8 @@ class MonitoringServer extends IPSModule {
     *
     */
 
+
+    
     public function checkInfluxState(){
 
         $domain = $this->ReadPropertyString("InfluxServer");
@@ -408,7 +419,7 @@ class MonitoringServer extends IPSModule {
 
                     if ( $idWhatsapp > 0 && $idWhatsapp != 123456){
 
-                        IPS_LogMessage ("Whatsapp" .$projectnumber , "Senden gestartet");
+                        //IPS_LogMessage ("Whatsapp" .$projectnumber , "Senden gestartet");
                         $paramvals = [
                             "pn" => $art,
                             "stoertext" => $smname
@@ -417,25 +428,25 @@ class MonitoringServer extends IPSModule {
                             $numbers = str_getcsv($numbersWhatsapp);
                             foreach ($numbers as $number){
                                 WBM_SendMessageEx($idWhatsapp,$number,$paramvals);
-                                IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
+                               // IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
                             }
                         }else
                         {
                             WBM_SendMessage($idWhatsapp,$paramvals);
-                            IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an konfigurierte Nummern gesendet");
+                            //IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an konfigurierte Nummern gesendet");
                         }
                     }
                 }
 
                 if ($sendmail == true){
                     if ($idMail > 0 && $idMail != 123456){
-                        IPS_LogMessage ("Sendmail " .$projectnumber , "Mailing gestartet");
+                        //IPS_LogMessage ("Sendmail " .$projectnumber , "Mailing gestartet");
 
                         $adresses = str_getcsv($mailAdresses);
 
                         foreach ($adresses as $adress){
                             SMTP_SendMailEx($idMail, $adress, $art, $smname);
-                            IPS_LogMessage ("Sendmail " .$projectnumber , "Mail an folgende Adresse gesendet: ".$adress );
+                         //   IPS_LogMessage ("Sendmail " .$projectnumber , "Mail an folgende Adresse gesendet: ".$adress );
                         }
                     }
                 } 
@@ -570,6 +581,98 @@ class MonitoringServer extends IPSModule {
 
         }
     }
+
+private function sendFtp(){
+    $goforit = $this->ReadPropertyBoolean("SendFtp");
+    $ftp_server = $this->ReadPropertyString("FtpHost");
+    $ftp_user_name = $this->ReadPropertyString("FtpUser");
+    $ftp_user_pass = $this->ReadPropertyString("FtpPassword");
+
+    if ($goforit == true){
+
+        $catNotifyId  = $this->ReadPropertyInteger("ParseNotifyCategoryID");
+        $catAnalogId  = $this->ReadPropertyInteger("ParseAnalogCategoryID");
+        $catAlarmId   = $this->ReadPropertyInteger("ParseAlarmCategoryID");
+
+        $ispName = "";
+        $projectName = "";
+        $yearName = "";
+
+        $usedCat = 0;
+        if ($catNotifyId > 0) $usedCat = $catNotifyId;
+        elseif ($catAnalogId > 0) $usedCat = $catAnalogId;
+        elseif ($catAlarmId > 0) $usedCat = $catAlarmId;
+
+        if ($usedCat > 0){
+            $parentid = IPS_GetParent($usedCat);
+            $ispName = IPS_GetName($parentid);
+            $projectId = IPS_GetParent($parentid);
+            $projectName = IPS_GetName($projectId);
+            $yearId = IPS_GetParent($projectId);
+            $yearName = IPS_GetName($yearId);
+        }
+
+        $ftp = ftp_connect($ftp_server);
+        if (!$ftp) {
+            echo "FTP-Verbindung fehlgeschlagen.";
+            return;
+        }
+
+        $login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
+        if (!$login_result) {
+            echo "FTP-Login fehlgeschlagen.";
+            ftp_close($ftp);
+            return;
+        }
+
+        // Pfad erstellen
+        $ftpPath = "$yearName/$projectName/$ispName";
+        $pathParts = explode("/", $ftpPath);
+        $currentPath = "";
+        foreach ($pathParts as $part) {
+            $currentPath .= "$part/";
+            if (!@ftp_chdir($ftp, $currentPath)) {
+                ftp_mkdir($ftp, $currentPath);
+            }
+        }
+
+        // Temp-Dateipfad vorbereiten
+        $tmpDir = sys_get_temp_dir();
+
+        // Verarbeitungsfunktion
+        $this->generateAndUploadCsv($catNotifyId, $ftp, "$ftpPath/notify.csv", "$tmpDir/notify.csv");
+        $this->generateAndUploadCsv($catAlarmId,  $ftp, "$ftpPath/alarms.csv", "$tmpDir/alarms.csv");
+        $this->generateAndUploadCsv($catAnalogId, $ftp, "$ftpPath/analog.csv", "$tmpDir/analog.csv");
+
+        ftp_close($ftp);
+    }
+}
+
+private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
+    if ($catId <= 0) return;
+
+    $data = "Name;Wert\n";
+
+    $catChilds = IPS_GetChildrenIDs($catId);
+    foreach ($catChilds as $catChild) {
+        $objchildids = IPS_GetChildrenIDs($catChild);
+        $parentName = IPS_GetName($catChild);
+
+        foreach ($objchildids as $varId) {
+            if (IPS_VariableExists($varId)) {
+                $varName = IPS_GetName($varId);
+                $formattedValue = GetValueFormatted($varId);
+                $data .= "\"{$parentName}_{$varName}\";\"{$formattedValue}\"\n";
+            }
+        }
+    }
+
+    // Schreibe Datei lokal
+    file_put_contents($localPath, $data);
+
+    // Lade hoch
+    ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
+}
 
 }
 ?>

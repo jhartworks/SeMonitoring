@@ -35,6 +35,11 @@
         { "type": "NumberSpinner", "name": "InfluxPort", "caption": "Influx Port" },
         { "type": "ValidationTextBox", "name": "InfluxDatabase", "caption": "Influx Database" },
 
+        { "type": "CheckBox", "name": "SendFtp", "caption": "Send FTP" },
+        { "type": "ValidationTextBox", "name": "FtpHost", "caption": "FTP-Host" },
+        { "type": "ValidationTextBox", "name": "FtpUser", "caption": "FTP-User" },
+        { "type": "ValidationTextBox", "name": "FtpPassword", "caption": "FTP-Password" },
+
         { "type": "NumberSpinner", "name": "UpdateintervallValues", "caption": "Updateintervall Values in Seconds" },
         { "type": "NumberSpinner", "name": "UpdateintervallAlarms", "caption": "Updateintervall Alarms in Seconds" },
         { "type": "NumberSpinner", "name": "UpdateintervallForceValues", "caption": "Force Updateintervall Values in Minutes" },
@@ -51,3 +56,5 @@
 
     ]
 }
+
+
