@@ -629,7 +629,8 @@ class MonitoringServer extends IPSModule {
 
             // Pfad erstellen
             $ftpPath = "$yearName/$projectName/$ispName";
-            $pathParts = explode("/", $ftpPath);
+            ftp_mkdir($ftp, $currentPath);
+/*             $pathParts = explode("/", $ftpPath);
             $currentPath = "";
             foreach ($pathParts as $part) {
                 $currentPath .= "$part/";
@@ -637,7 +638,7 @@ class MonitoringServer extends IPSModule {
                     ftp_mkdir($ftp, $currentPath);
                 }
             }
-
+ */
             // Temp-Dateipfad vorbereiten
             
 
@@ -670,7 +671,7 @@ class MonitoringServer extends IPSModule {
                     $formattedValue = GetValueFormatted($varId);
                     $data .= "\"{$parentName}\";\"{$varName}\";\"{$formattedValue}\"\n";
                     
-                    IPS_LogMessage ("Filecontens", $data);
+                    //IPS_LogMessage ("Filecontens", $data);
                 }
             }
         }
@@ -683,11 +684,11 @@ class MonitoringServer extends IPSModule {
         $state = fwrite($file, $data); 
         fclose($file); 
 
-        IPS_LogMessage ("File Create", "File Put State/Size: ".$state); 
+        //IPS_LogMessage ("File Create", "File Put State/Size: ".$state); 
 
         // Lade hoch
         $putstate = ftp_put($ftp, $remotePath, $path, FTP_BINARY);
-        IPS_LogMessage ("FTP", "FTP Put State: ".$putstate);
+        //IPS_LogMessage ("FTP", "FTP Put State: ".$putstate);
     }
 
 }
