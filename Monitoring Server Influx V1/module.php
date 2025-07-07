@@ -659,7 +659,7 @@ private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
             if (IPS_VariableExists($varId)) {
                 $varName = IPS_GetName($varId);
                 $formattedValue = GetValueFormatted($varId);
-                $data .= "\"{$parentName}\";\"{$varName}\";\"{$formattedValue}\"\n";
+                $data .= "\"{$parentName}\",\"{$varName}\",\"{$formattedValue}\"\n";
             }
         }
     }
