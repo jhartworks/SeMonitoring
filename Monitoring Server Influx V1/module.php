@@ -353,10 +353,33 @@ class MonitoringServer extends IPSModule {
                         $payload = GetValue($objchildid);
                         
                         $numberofvalues++;
-                        if($changedtime > $time - $updatetime){
+                         if(($changedtime > $time - $updatetime) | $force){
 
                             $parname = str_replace(" ","", $parname);
                             $varname = str_replace(" ","", $varname);
+                            $parname = str_replace(" ","", $parname);
+                            $varname = str_replace(" ","", $varname);
+
+                            $parname = str_replace("/","_", $parname);
+                            $varname = str_replace("/","_", $varname);
+
+                            $parname = str_replace("-","_", $parname);
+                            $varname = str_replace("-","_", $varname);
+
+                            $parname = str_replace("ä","ae", $parname);
+                            $varname = str_replace("ä","ae", $varname);
+
+                            $parname = str_replace(".","", $parname);
+                            $varname = str_replace(".","", $varname);
+
+                            $parname = str_replace("ö","oe", $parname);
+                            $varname = str_replace("ö","oe", $varname);
+
+                            $parname = str_replace("ü","ue", $parname);
+                            $varname = str_replace("ü","ue", $varname);
+
+                            $parname = str_replace(",","", $parname);
+                            $varname = str_replace(",","", $varname);
                             
                         $system = "P".$projectnumber."_ISP".$ispnumber;
                         $category = $system."_Digital";
