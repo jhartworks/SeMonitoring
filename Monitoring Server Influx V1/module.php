@@ -353,7 +353,7 @@ class MonitoringServer extends IPSModule {
                         $payload = GetValue($objchildid);
                         
                         $numberofvalues++;
-                         if(($changedtime > $time - $updatetime) | $force){
+                         if(($changedtime > $time - $updatetime*10) | $force){
 
                             $parname = str_replace(" ","", $parname);
                             $varname = str_replace(" ","", $varname);
