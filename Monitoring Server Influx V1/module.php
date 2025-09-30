@@ -710,13 +710,13 @@ public function sendFtp() {
 
     $ftp = ftp_ssl_connect($ftp_server);
     if (!$ftp) {
-        IPS_LogMessage("FTP", "FTP-Verbindung fehlgeschlagen.");
+        //IPS_LogMessage("FTP", "FTP-Verbindung fehlgeschlagen.");
         return;
     }
 
     $login_result = ftp_login($ftp, $ftp_user_name, $ftp_user_pass);
     if (!$login_result) {
-        IPS_LogMessage("FTP", "FTP-Login fehlgeschlagen.");
+        //IPS_LogMessage("FTP", "FTP-Login fehlgeschlagen.");
         ftp_close($ftp);
         return;
     }
@@ -766,16 +766,16 @@ private function generateAndUploadCsv($catId, $ftp, $remotePath, $localPath) {
     fclose($file);
 
     // Logging
-    IPS_LogMessage("FTP", "Lokaler Pfad: " . $localPath);
-    IPS_LogMessage("FTP", "Remote Pfad: " . $remotePath);
-    IPS_LogMessage("FTP", "Dateigröße lokal: " . filesize($localPath));
+    //IPS_LogMessage("FTP", "Lokaler Pfad: " . $localPath);
+    //IPS_LogMessage("FTP", "Remote Pfad: " . $remotePath);
+    //IPS_LogMessage("FTP", "Dateigröße lokal: " . filesize($localPath));
 
     // Upload
     $putstate = ftp_put($ftp, $remotePath, $localPath, FTP_BINARY);
     if ($putstate) {
-        IPS_LogMessage("FTP", "Upload OK: $remotePath");
+      //IPS_LogMessage("FTP", "Upload OK: $remotePath");
     } else {
-        IPS_LogMessage("FTP", "Upload FEHLGESCHLAGEN: $remotePath");
+        //IPS_LogMessage("FTP", "Upload FEHLGESCHLAGEN: $remotePath");
     }
 }
 
