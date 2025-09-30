@@ -425,7 +425,7 @@ class MonitoringServer extends IPSModule {
         $mailAdresses    = $this->ReadPropertyString("MailAdresses");
 
         $idDc           = $this->ReadPropertyInteger("DiscordInst");
-
+        $push           = 0;
         $tdOld = $this->ReadAttributeString("AtAlarmtable");
         $td = $tdOld;
 
@@ -442,6 +442,7 @@ class MonitoringServer extends IPSModule {
 
                 if ($sendit == true){
                     VISU_PostNotification($webfrontid, $art, $smname, $ico, $targetid);
+                    $push = 1;
                 } 
                 
                 $whatsapp   = 0;
