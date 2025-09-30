@@ -12,15 +12,41 @@
         { "type": "SelectInstance", "name": "SqlId", "caption": "SQL Connector" },
         { "type": "SelectInstance", "name": "VisuId", "caption": "Web Visu" },
         { "type": "CheckBox", "name": "SendNotification", "caption": "Send Notification" },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Whatsapp-Setup",
+            "items": [
+                { "type": "CheckBox", "name": "SendWhatsapp", "caption": "Send Whatsapp" },
+                { "type": "SelectInstance", "name": "WhatappInst", "caption": "Whatsapp Insance" },
+                { "type": "ValidationTextBox", "name": "WhatsappNumbers", "caption": "Whatsapp-Numbers" }
+            ]
+        },
 
-        { "type": "CheckBox", "name": "SendWhatsapp", "caption": "Send Whatsapp" },
-        { "type": "SelectInstance", "name": "WhatappInst", "caption": "Whatsapp Insance" },
-        { "type": "ValidationTextBox", "name": "WhatsappNumbers", "caption": "Whatsapp-Numbers" },
-
-        { "type": "CheckBox", "name": "SendMail", "caption": "Send Mail" },
-        { "type": "SelectInstance", "name": "MailInst", "caption": "Mail Insance"},
-        { "type": "ValidationTextBox", "name": "MailAdresses", "caption": "Mail-Adresses" },
-
+        {
+            "type": "ExpansionPanel",
+            "caption": "Mail-Setup",
+            "items": [
+                { "type": "CheckBox", "name": "SendMail", "caption": "Send Mail" },
+                { "type": "SelectInstance", "name": "MailInst", "caption": "Mail Insance" },
+                { "type": "ValidationTextBox", "name": "MailAdresses", "caption": "Mail-Adresses" }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Phone-Setup",
+            "items": [
+                { "type": "CheckBox", "name": "SendPhone", "caption": "Send Phone Call" },
+                { "type": "ValidationTextBox", "name": "PhoneNumbers", "caption": "Phone-Numbers" }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Discord-Setup",
+            "items": [
+                { "type": "CheckBox", "name": "SendDiscord", "caption": "Send Discord" },
+                { "type": "SelectInstance", "name": "DiscordInst", "caption": "Discord Insance" }
+            ]
+        },
         { "type": "CheckBox", "name": "SendDiscord", "caption": "Send Discord" },
         { "type": "SelectInstance", "name": "DiscordInst", "caption": "Discord Insance"},
 
@@ -32,14 +58,26 @@
             { "caption": "SSL", "value": "https://" }
         ]
         },
-        { "type": "ValidationTextBox", "name": "InfluxServer", "caption": "Influx Server" },
-        { "type": "NumberSpinner", "name": "InfluxPort", "caption": "Influx Port" },
-        { "type": "ValidationTextBox", "name": "InfluxDatabase", "caption": "Influx Database" },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Influx-Setup",
+            "items": [
+                { "type": "ValidationTextBox", "name": "InfluxServer", "caption": "Influx Server" },
+                { "type": "NumberSpinner", "name": "InfluxPort", "caption": "Influx Port" },
+                { "type": "ValidationTextBox", "name": "InfluxDatabase", "caption": "Influx Database" }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "FTP-Setup",
+            "items": [
+                { "type": "CheckBox", "name": "SendFtp", "caption": "Send FTP" },
+                { "type": "ValidationTextBox", "name": "FtpHost", "caption": "FTP-Host" },
+                { "type": "ValidationTextBox", "name": "FtpUser", "caption": "FTP-User" },
+                { "type": "ValidationTextBox", "name": "FtpPassword", "caption": "FTP-Password" }
+            ]
+        },
 
-        { "type": "CheckBox", "name": "SendFtp", "caption": "Send FTP" },
-        { "type": "ValidationTextBox", "name": "FtpHost", "caption": "FTP-Host" },
-        { "type": "ValidationTextBox", "name": "FtpUser", "caption": "FTP-User" },
-        { "type": "ValidationTextBox", "name": "FtpPassword", "caption": "FTP-Password" },
 
         { "type": "NumberSpinner", "name": "UpdateintervallValues", "caption": "Updateintervall Values in Seconds" },
         { "type": "NumberSpinner", "name": "UpdateintervallAlarms", "caption": "Updateintervall Alarms in Seconds" },
