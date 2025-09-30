@@ -534,7 +534,7 @@ class MonitoringServer extends IPSModule {
                         sms, smsnumber, smsed,
                         whatsapp, wanumber, whatsapped,
                         phone, phonenumber, phoned,
-                        mail, email_address, mailed,
+                        mail, mailaddress, mailed,
                         push
                     ) VALUES (
                         '%s','%s','%s','%s','%s',
