@@ -12,8 +12,8 @@ class MonitoringServer extends IPSModule {
         $this->RegisterPropertyInteger("ParseAnalogCategoryID","0");
 
         $this->RegisterPropertyInteger("ISP","1");
+        $this->RegisterPropertyInteger("SqlId","27624");
         $this->RegisterPropertyInteger("VisuId","0");
-
         $this->RegisterPropertyInteger("Projectnumber",123456);
         $this->RegisterPropertyString("Projectname","Musterprojekt");
         $this->RegisterPropertyString("InfluxDatabase","monitoring");
@@ -27,6 +27,9 @@ class MonitoringServer extends IPSModule {
         $this->RegisterPropertyBoolean("SendMail",false);
         $this->RegisterPropertyInteger("MailInst", 0);
         $this->RegisterPropertyString("MailAdresses", "hallo@mail.com,info@stoerung.de");
+
+        $this->RegisterPropertyBoolean("SendPhone",false);
+        $this->RegisterPropertyString("PhoneNumbers", "0159123456789,0157987456123");
 
         $this->RegisterPropertyBoolean("SendFtp",false);
         $this->RegisterPropertyString("FtpHost", "your-server.de");
@@ -405,15 +408,19 @@ class MonitoringServer extends IPSModule {
 
     private function notify($trigid, $webfrontid, $targetid, $projectnumber, $projectname, $ispnr){
         
+        $projectnumber = $this->ReadPropertyInteger("Projectnumber");
+        $projectname = $this->ReadPropertyString("Projectname");
+        $ispnumber = $this->ReadPropertyInteger("ISP");
 
         $sendit         = $this->ReadPropertyBoolean("SendNotification");
         $sendwhatsapp   = $this->ReadPropertyBoolean("SendWhatsapp");
+        $sendphone      = $this->ReadPropertyBoolean("SendPhone");
         $sendmail       = $this->ReadPropertyBoolean("SendMail");
         $senddc         = $this->ReadPropertyBoolean("SendDiscord");
-
+        $idSql          = $this->ReadPropertyInteger("SqlId");
         $idWhatsapp     = $this->ReadPropertyInteger("WhatappInst");
         $numbersWhatsapp     = $this->ReadPropertyString("WhatsappNumbers");
-
+        $numbersPhone     = $this->ReadPropertyString("PhoneNumbers");
         $idMail         = $this->ReadPropertyInteger("MailInst");
         $mailAdresses    = $this->ReadPropertyString("MailAdresses");
 
@@ -437,11 +444,12 @@ class MonitoringServer extends IPSModule {
                     VISU_PostNotification($webfrontid, $art, $smname, $ico, $targetid);
                 } 
                 
-
+                $whatsapp   = 0;
+                $whatsapped = 0;
                 if ($sendwhatsapp == true){
 
                     if ( $idWhatsapp > 0 && $idWhatsapp != 123456){
-
+                        $whatsapp = 1;
                         //IPS_LogMessage ("Whatsapp" .$projectnumber , "Senden gestartet");
                         $paramvals = [
                             "pn" => $art,
@@ -453,23 +461,38 @@ class MonitoringServer extends IPSModule {
                                 WBM_SendMessageEx($idWhatsapp,$number,$paramvals);
                                // IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
                             }
+                            $whatsapped = 1;
                         }else
                         {
                             WBM_SendMessage($idWhatsapp,$paramvals);
                             //IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an konfigurierte Nummern gesendet");
+                            $whatsapped = 1;
                         }
                     }
                 }
 
+                $phonenumber  = '0';
+                $phone        = 0;
+                $phoned       = 0;
+
+                if ($sendphone == true){
+                    $phone = 1;
+                    if ($numbersPhone != ""){
+                        $phonenumbers = $numbersPhone;
+                    }
+                }
+
+                $mail          = 0;
+                $mailed        = 0;
                 if ($sendmail == true){
                     if ($idMail > 0 && $idMail != 123456){
-                        //IPS_LogMessage ("Sendmail " .$projectnumber , "Mailing gestartet");
-
+                        $mail = 1;
                         $adresses = str_getcsv($mailAdresses);
+                        $email_address = $adresses;
 
                         foreach ($adresses as $adress){
                             SMTP_SendMailEx($idMail, $adress, $art, $smname);
-                         //   IPS_LogMessage ("Sendmail " .$projectnumber , "Mail an folgende Adresse gesendet: ".$adress );
+                            $mailed        = 1;
                         }
                     }
                 } 
@@ -484,7 +507,55 @@ class MonitoringServer extends IPSModule {
                 $this->WriteAttributeString("AtAlarmtable", $td);
                 //IPS_LogMessage ("Notify", "Alarmhistory updated");
 
-                
+                MySQL_Open($idSql);
+
+                // Beispielwerte (ersetzen durch echte)
+                $topic         = '';
+
+                $sms        = 0;
+                $smsnumber  = '0';
+                $smsed      = 0;
+
+   
+                // === Helfer: Escaping für Strings ===
+                if (function_exists('MySQL_RealEscapeString')) {
+                    $esc = fn(string $s) => MySQL_RealEscapeString($idSql, $s);
+                } else {
+                    // Fallback, falls Modul-Funktion nicht verfügbar ist
+                    $esc = fn(string $s) => addslashes($s);
+                }
+
+                // === INSERT bauen ===
+                $sql = sprintf(
+                    "INSERT INTO alarms (
+                        topic, projectnumber, projectname, isp, name,
+                        sms, smsnumber, smsed,
+                        whatsapp, wanumber, whatsapped,
+                        phone, phonenumber, phoned,
+                        mail, email_address, mailed,
+                        push
+                    ) VALUES (
+                        '%s','%s','%s','%s','%s',
+                        %d,'%s',%d,
+                        %d,'%s',%d,
+                        %d,'%s',%d,
+                        %d,'%s',%d,
+                        %d
+                    )",
+                    $esc($topic), $esc($projectnumber), $esc($projectname), $esc($ispnumber), $esc($smname),
+                    (int)$sms, $esc($smsnumber), (int)$smsed,
+                    (int)$whatsapp, $esc($numbersWhatsapp), (int)$whatsapped,
+                    (int)$phone, $esc($phonenumber), (int)$phoned,
+                    (int)$mail, $esc($email_address), (int)$mailed,
+                    (int)$push
+                );
+
+                // === Ausführen ===
+                $ok = MySQL_ExecuteSimple($idSql, $sql);
+                if (!$ok) {
+                    echo "INSERT fehlgeschlagen.\n";
+                    return;
+                }
             }
             elseif (GetValue($trigid) == false) {
                 $this->SetBuffer($smname, "true");

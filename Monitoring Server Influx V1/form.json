@@ -9,6 +9,7 @@
         { "type": "ValidationTextBox", "name": "Projectname", "caption": "Projectname" },
 
         { "type": "NumberSpinner", "name": "ISP", "caption": "ISP-Number" },
+        { "type": "SelectInstance", "name": "SqlId", "caption": "SQL Connector" },
         { "type": "SelectInstance", "name": "VisuId", "caption": "Web Visu" },
         { "type": "CheckBox", "name": "SendNotification", "caption": "Send Notification" },
 
