@@ -484,6 +484,7 @@ class MonitoringServer extends IPSModule {
 
                 $mail          = 0;
                 $mailed        = 0;
+                $email_address = 'none';
                 if ($sendmail == true){
                     if ($idMail > 0 && $idMail != 123456){
                         $mail = 1;
