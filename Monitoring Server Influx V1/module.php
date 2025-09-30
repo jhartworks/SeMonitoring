@@ -428,6 +428,16 @@ class MonitoringServer extends IPSModule {
         $push           = 0;
         $tdOld = $this->ReadAttributeString("AtAlarmtable");
         $td = $tdOld;
+        
+        MySQL_Open($idSql);
+
+        // === Helfer: Escaping für Strings ===
+        if (function_exists('MySQL_RealEscapeString')) {
+            $esc = fn(string $s) => MySQL_RealEscapeString($idSql, $s);
+        } else {
+        // Fallback, falls Modul-Funktion nicht verfügbar ist
+            $esc = fn(string $s) => addslashes($s);
+        }
 
         $time = date("Y-m-d H:i:s");
 
@@ -479,7 +489,28 @@ class MonitoringServer extends IPSModule {
                 if ($sendphone == true){
                     $phone = 1;
                     if ($numbersPhone != ""){
-                        $phonenumbers = $numbersPhone;
+
+                        $phonenumbers = str_getcsv($numbersPhone);
+
+                        foreach ($phonenumbers as $phonenumber){
+                                           
+                            $sqlcall = sprintf(
+                                "INSERT INTO alarmcalls (
+                                    alarmname, phonenumber
+                                ) VALUES (
+                                    '%s','%s'
+                                )",
+                                $esc($smname), $esc($phonenumber)
+                            );
+
+                            // === Ausführen ===
+                            $okcall = MySQL_ExecuteSimple($idSql, $sqlcall);
+                            if (!$okcall) {
+                                echo "INSERT fehlgeschlagen.\n";
+                            }
+
+                            $phoned        = 1;
+                        }
                     }
                 }
 
@@ -509,7 +540,7 @@ class MonitoringServer extends IPSModule {
                 $this->WriteAttributeString("AtAlarmtable", $td);
                 //IPS_LogMessage ("Notify", "Alarmhistory updated");
 
-                MySQL_Open($idSql);
+                
 
                 // Beispielwerte (ersetzen durch echte)
                 $topic         = '';
@@ -517,15 +548,6 @@ class MonitoringServer extends IPSModule {
                 $sms        = 0;
                 $smsnumber  = '0';
                 $smsed      = 0;
-
-   
-                // === Helfer: Escaping für Strings ===
-                if (function_exists('MySQL_RealEscapeString')) {
-                    $esc = fn(string $s) => MySQL_RealEscapeString($idSql, $s);
-                } else {
-                    // Fallback, falls Modul-Funktion nicht verfügbar ist
-                    $esc = fn(string $s) => addslashes($s);
-                }
 
                 // === INSERT bauen ===
                 $sql = sprintf(
@@ -547,7 +569,7 @@ class MonitoringServer extends IPSModule {
                     $esc($topic), $esc($projectnumber), $esc($projectname), $esc($ispnumber), $esc($smname),
                     (int)$sms, $esc($smsnumber), (int)$smsed,
                     (int)$whatsapp, $esc($numbersWhatsapp), (int)$whatsapped,
-                    (int)$phone, $esc($phonenumber), (int)$phoned,
+                    (int)$phone, $esc($numbersPhone), (int)$phoned,
                     (int)$mail, $esc($email_address), (int)$mailed,
                     (int)$push
                 );
@@ -556,7 +578,6 @@ class MonitoringServer extends IPSModule {
                 $ok = MySQL_ExecuteSimple($idSql, $sql);
                 if (!$ok) {
                     echo "INSERT fehlgeschlagen.\n";
-                    return;
                 }
             }
             elseif (GetValue($trigid) == false) {
