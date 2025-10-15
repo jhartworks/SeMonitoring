@@ -47,9 +47,6 @@
                 { "type": "SelectInstance", "name": "DiscordInst", "caption": "Discord Insance" }
             ]
         },
-        { "type": "CheckBox", "name": "SendDiscord", "caption": "Send Discord" },
-        { "type": "SelectInstance", "name": "DiscordInst", "caption": "Discord Insance"},
-
         { "type": "CheckBox", "name": "LogValues", "caption": "Log Values" },
 
         { "type": "Select", "name": "SslHttp", "caption": "SSL ?",
