@@ -418,7 +418,7 @@ class MonitoringServer extends IPSModule {
         $sendmail       = $this->ReadPropertyBoolean("SendMail");
         $senddc         = $this->ReadPropertyBoolean("SendDiscord");
         $idSql          = $this->ReadPropertyInteger("SqlId");
-        $idWhatsapp     = $this->ReadPropertyInteger("WhatappInst");
+        $idWhatsapp     = $this->ReadPropertyString("WhatappInst");
         $numbersWhatsapp     = $this->ReadPropertyString("WhatsappNumbers");
         $numbersPhone     = $this->ReadPropertyString("PhoneNumbers");
         $idMail         = $this->ReadPropertyInteger("MailInst");
