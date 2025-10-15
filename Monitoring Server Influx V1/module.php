@@ -469,7 +469,41 @@ class MonitoringServer extends IPSModule {
                         if ($numbersWhatsapp != ""){
                             $numbers = str_getcsv($numbersWhatsapp);
                             foreach ($numbers as $number){
-                                WBM_SendMessageEx($idWhatsapp,$number,$paramvals);
+                               // WBM_SendMessageEx($idWhatsapp,$number,$paramvals);
+                            $url = 'https://whatsappapi.se-inno.de'; // 👈 API-URL hier eintragen
+
+                            $data = [
+                                'api_key'  => $idWhatsapp,
+                                'number'   => $number,
+                                'message'  => $smname,
+                                'template' => 'stoerung',
+                                'pn' => $art
+                            ];
+
+                            $ch = curl_init($url);
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                            curl_setopt($ch, CURLOPT_POST, true);
+                            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+                            // Optional: SSL-Validierung ausschalten (nur zu Testzwecken!)
+                            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+                            $response = curl_exec($ch);
+                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $error    = curl_error($ch);
+                            curl_close($ch);
+
+                            header('Content-Type: text/plain');
+
+                            echo "HTTP-Code: $httpcode\n";
+                            if ($error) {
+                                echo "cURL Error: $error\n";
+                            } else {
+                                echo "Response:\n$response\n";
+                            }
+
                                // IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
                             }
                             $whatsapped = 1;
