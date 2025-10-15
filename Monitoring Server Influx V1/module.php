@@ -21,7 +21,7 @@ class MonitoringServer extends IPSModule {
         $this->RegisterPropertyBoolean("SendNotification","false");
 
         $this->RegisterPropertyBoolean("SendWhatsapp",false);
-        $this->RegisterPropertyInteger("WhatappInst","DdiBL06tEUa76w7NNCsW9y2s6UkUmrpxZcR8CvTNWMX5z4leyjqI1go2wpatYhCz");
+        $this->RegisterPropertyString("WhatappInst","DdiBL06tEUa76w7NNCsW9y2s6UkUmrpxZcR8CvTNWMX5z4leyjqI1go2wpatYhCz");
         $this->RegisterPropertyString("WhatsappNumbers", "0159123456789,0157987456123");
 
         $this->RegisterPropertyBoolean("SendMail",false);
