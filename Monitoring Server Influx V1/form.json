@@ -17,7 +17,7 @@
             "caption": "Whatsapp-Setup",
             "items": [
                 { "type": "CheckBox", "name": "SendWhatsapp", "caption": "Send Whatsapp" },
-                { "type": "ValidationTextBox", "name": "WhatappInst", "caption": "Whatsapp Insance" },
+                { "type": "ValidationTextBox", "name": "WhatappInst", "caption": "Whatsapp SE Cloud API Key" },
                 { "type": "ValidationTextBox", "name": "WhatsappNumbers", "caption": "Whatsapp-Numbers" }
             ]
         },
