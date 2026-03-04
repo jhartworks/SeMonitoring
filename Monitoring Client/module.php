@@ -262,7 +262,7 @@ class MonitoringClient extends IPSModule {
                                 $payload = round(getvalue($childid), 2);
 
                                 $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
-                                IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
+                                IPS_LogMessage("Monitoring Client", "Force Update none Parent: " . $topic . " mit Payload: " . $payload);
                             }
                         }
 
