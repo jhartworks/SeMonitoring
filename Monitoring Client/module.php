@@ -120,7 +120,6 @@ class MonitoringClient extends IPSModule {
         return true;
     } // MQTT_Publish
 
-
     public function SendTopic() {
    
         $mqttId = $this->ReadPropertyInteger("MqttCLientID");
@@ -165,8 +164,9 @@ class MonitoringClient extends IPSModule {
                                                     $varInfo = IPS_GetVariable($childid); 
                                                 }
                                             }
-                                        
-                                            $varInfo = IPS_GetVariable($childid); 
+                                            
+                                            $varInfo = IPS_GetVariable($childid);
+                                            $changedtime = $varInfo["VariableChanged"];
                                             $varname = IPS_GetName($childid);
                                             $topic = $catId["top"]. $parname."_".$varname;
                                             $payload = round(getvalue($childid), 2);
@@ -191,7 +191,8 @@ class MonitoringClient extends IPSModule {
                                     }
                                 }
 
-                                $varInfo = IPS_GetVariable($childid); 
+                                $varInfo = IPS_GetVariable($childid);
+                                $changedtime = $varInfo["VariableChanged"];
                                 $varname = IPS_GetName($childid);
                                 $topic = $catId["top"].$varname;
                                 $payload = round(getvalue($childid), 2);
