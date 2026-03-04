@@ -216,9 +216,11 @@ class MonitoringClient extends IPSModule {
 
                             $parname = IPS_GetName($catChild);
 
+                            if (IPS_VariableExists($catChild) != 1 && IPS_LinkExists($catChild) != 1){
+
                                 foreach ($childids as $childid){
 
-                                    if (IPS_VariableExists($childid) != 1 && IPS_LinkExists($childid) != 1){
+                                    
 
                                         foreach ($childids as $childid){
                                             if (IPS_VariableExists($childid) != 1){
@@ -240,27 +242,28 @@ class MonitoringClient extends IPSModule {
                                             IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
                                         
                                         }
-                                    }else{
-                                            if (IPS_VariableExists($childid) != 1){
 
-                                                if(IPS_LinkExists($childid) == 1){
-                                                    $linkInfo = IPS_GetLink($childid);
-                                                    $linkTarget = $linkInfo["TargetID"];
-                                                    $childid = $linkTarget;
-                                                    $varInfo = IPS_GetVariable($childid); 
-                                                }
-                                            }
+                                }
+                            }else{
+                                $childid = $catChild;
+                                if (IPS_VariableExists($childid) != 1){
 
-                                            $varInfo = IPS_GetVariable($childid); 
-                                            $varname = IPS_GetName($childid);
-                                            $topic = $catId["top"]. $parname."_".$varname;
-                                            $payload = round(getvalue($childid), 2);
-
-                                            $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
-                                            IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
+                                    if(IPS_LinkExists($childid) == 1){
+                                        $linkInfo = IPS_GetLink($childid);
+                                        $linkTarget = $linkInfo["TargetID"];
+                                        $childid = $linkTarget;
+                                        $varInfo = IPS_GetVariable($childid); 
                                     }
                                 }
-                        
+
+                                $varInfo = IPS_GetVariable($childid); 
+                                $varname = IPS_GetName($childid);
+                                $topic = $catId["top"]. $parname."_".$varname;
+                                $payload = round(getvalue($childid), 2);
+
+                                $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                                IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
+                            }
                         }
 
             }
