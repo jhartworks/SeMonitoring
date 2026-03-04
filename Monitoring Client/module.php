@@ -121,6 +121,7 @@ class MonitoringClient extends IPSModule {
     } // MQTT_Publish
 
     public function SendTopic() {
+   
         $mqttId = $this->ReadPropertyInteger("MqttCLientID");
         $projectyear = $this->ReadPropertyInteger("Projectyear");
         $projectnumber = $this->ReadPropertyInteger("Projectnumber");
@@ -147,47 +148,65 @@ class MonitoringClient extends IPSModule {
 
                             $parname = IPS_GetName($catChild);
 
-                            $parname = str_replace("/","_", $parname);
-
-                            IPS_SetName($catChild, $parname);
+                            if (IPS_VariableExists($catChild) != 1 && IPS_LinkExists($catChild) != 1){
 
                                 foreach ($childids as $childid){
-                                    if (IPS_VariableExists($childid) != 1){
 
-                                        if(IPS_LinkExists($childid) == 1){
-                                            $linkInfo = IPS_GetLink($childid);
-                                            $linkTarget = $linkInfo["TargetID"];
-                                            $childid = $linkTarget;
+                                    
+
+                                        foreach ($childids as $childid){
+                                            if (IPS_VariableExists($childid) != 1){
+
+                                                if(IPS_LinkExists($childid) == 1){
+                                                    $linkInfo = IPS_GetLink($childid);
+                                                    $linkTarget = $linkInfo["TargetID"];
+                                                    $childid = $linkTarget;
+                                                    $varInfo = IPS_GetVariable($childid); 
+                                                }
+                                            }
+                                        
+                                            $varInfo = IPS_GetVariable($childid); 
+                                            $varname = IPS_GetName($childid);
+                                            $topic = $catId["top"]. $parname."_".$varname;
+                                            $payload = round(getvalue($childid), 2);
+
+                                            if($changedtime > $time - $updatetime){
+                                                $this->MqttPublish($mqttId, $topic, $payload, false);
+                                            }
+                                            // IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
+                                        
                                         }
 
-                                    }
-                                    
-                                    $varInfo = IPS_GetVariable($childid); 
-
-                                    $changedtime = $varInfo["VariableChanged"];
-                                    $varname = IPS_GetName($childid);
-
-                   
-                                    $varname = str_replace("/","_", $varname);
-
-                                    IPS_SetName($childid, $varname);
-
-                                    $topic = $catId["top"]. $parname."_".$varname;
-                                    $time = time();
-                                    $payload = round(getvalue($childid), 2);
-
-                                    if($changedtime > $time - $updatetime){
-                                        SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
-                                    }
-
-
                                 }
-                        
+                            }else{
+                                $childid = $catChild;
+                                if (IPS_VariableExists($childid) != 1){
+
+                                    if(IPS_LinkExists($childid) == 1){
+                                        $linkInfo = IPS_GetLink($childid);
+                                        $linkTarget = $linkInfo["TargetID"];
+                                        $childid = $linkTarget;
+                                        $varInfo = IPS_GetVariable($childid); 
+                                    }
+                                }
+
+                                $varInfo = IPS_GetVariable($childid); 
+                                $varname = IPS_GetName($childid);
+                                $topic = $catId["top"].$varname;
+                                $payload = round(getvalue($childid), 2);
+
+                                if($changedtime > $time - $updatetime){
+                                    $this->MqttPublish($mqttId, $topic, $payload, false);
+                                }
+                               // IPS_LogMessage("Monitoring Client", "Force Update none Parent: " . $topic . " mit Payload: " . $payload);
+                            }
                         }
 
             }
-    }
+            $topic = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Name";
+            $this->MqttPublish($mqttId, $topic, $projectname, false);
 
+    }
     public function ForceSendTopic() {
    
         $mqttId = $this->ReadPropertyInteger("MqttCLientID");
@@ -239,7 +258,7 @@ class MonitoringClient extends IPSModule {
                                             $payload = round(getvalue($childid), 2);
 
                                             $this->MqttPublish($mqttId, $topic, $payload, false);
-                                            IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
+                                            // IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
                                         
                                         }
 
@@ -262,7 +281,7 @@ class MonitoringClient extends IPSModule {
                                 $payload = round(getvalue($childid), 2);
 
                                 $this->MqttPublish($mqttId, $topic, $payload, false);
-                                IPS_LogMessage("Monitoring Client", "Force Update none Parent: " . $topic . " mit Payload: " . $payload);
+                               // IPS_LogMessage("Monitoring Client", "Force Update none Parent: " . $topic . " mit Payload: " . $payload);
                             }
                         }
 
