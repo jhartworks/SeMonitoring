@@ -237,6 +237,7 @@ class MonitoringClient extends IPSModule {
                                             $payload = round(getvalue($childid), 2);
 
                                             $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                                            IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
                                         
                                         }
                                     }else{
@@ -249,13 +250,14 @@ class MonitoringClient extends IPSModule {
                                                     $varInfo = IPS_GetVariable($childid); 
                                                 }
                                             }
-                                            
+
                                             $varInfo = IPS_GetVariable($childid); 
                                             $varname = IPS_GetName($childid);
                                             $topic = $catId["top"]. $parname."_".$varname;
                                             $payload = round(getvalue($childid), 2);
 
-                                            $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false); 
+                                            $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                                            IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
                                     }
                                 }
                         
