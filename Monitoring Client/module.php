@@ -153,11 +153,13 @@ class MonitoringClient extends IPSModule {
 
                                 foreach ($childids as $childid){
                                     if (IPS_VariableExists($childid) != 1){
+
                                         if(IPS_LinkExists($childid) == 1){
                                             $linkInfo = IPS_GetLink($childid);
                                             $linkTarget = $linkInfo["TargetID"];
                                             $childid = $linkTarget;
                                         }
+
                                     }
                                     
                                     $varInfo = IPS_GetVariable($childid); 
@@ -173,6 +175,7 @@ class MonitoringClient extends IPSModule {
                                     $topic = $catId["top"]. $parname."_".$varname;
                                     $time = time();
                                     $payload = round(getvalue($childid), 2);
+
                                     if($changedtime > $time - $updatetime){
                                         SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
                                     }
@@ -215,33 +218,52 @@ class MonitoringClient extends IPSModule {
 
                                 foreach ($childids as $childid){
 
-                                    foreach ($childids as $childid){
-                                        if (IPS_VariableExists($childid) != 1){
+                                    if (IPS_VariableExists($childid) != 1 && IPS_LinkExists($childid) != 1){
 
-                                            if(IPS_LinkExists($childid) == 1){
-                                                $linkInfo = IPS_GetLink($childid);
-                                                $linkTarget = $linkInfo["TargetID"];
-                                                $childid = $linkTarget;
-                                                $varInfo = IPS_GetVariable($childid); 
+                                        foreach ($childids as $childid){
+                                            if (IPS_VariableExists($childid) != 1){
+
+                                                if(IPS_LinkExists($childid) == 1){
+                                                    $linkInfo = IPS_GetLink($childid);
+                                                    $linkTarget = $linkInfo["TargetID"];
+                                                    $childid = $linkTarget;
+                                                    $varInfo = IPS_GetVariable($childid); 
+                                                }
                                             }
+                                        
+                                            $varInfo = IPS_GetVariable($childid); 
+                                            $varname = IPS_GetName($childid);
+                                            $topic = $catId["top"]. $parname."_".$varname;
+                                            $payload = round(getvalue($childid), 2);
+
+                                            $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
+                                        
                                         }
-                                    
-                                        $varInfo = IPS_GetVariable($childid); 
-                                        $varname = IPS_GetName($childid);
-                                        $topic = $catId["top"]. $parname."_".$varname;
-                                        $payload = round(getvalue($childid), 2);
+                                    }else{
+                                            if (IPS_VariableExists($childid) != 1){
 
-                                        SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false);
-                                    
+                                                if(IPS_LinkExists($childid) == 1){
+                                                    $linkInfo = IPS_GetLink($childid);
+                                                    $linkTarget = $linkInfo["TargetID"];
+                                                    $childid = $linkTarget;
+                                                    $varInfo = IPS_GetVariable($childid); 
+                                                }
+                                            }
+                                            
+                                            $varInfo = IPS_GetVariable($childid); 
+                                            $varname = IPS_GetName($childid);
+                                            $topic = $catId["top"]. $parname."_".$varname;
+                                            $payload = round(getvalue($childid), 2);
+
+                                            $this->MqttPublish($this->InstanceID,$mqttId, $topic, $payload, false); 
                                     }
-
                                 }
                         
                         }
 
             }
             $topic = "Projekte". $projectyear."/".$projectnumber. "/ISP" .$ispnumber. "/Name";
-            SEMC_MqttPublish($this->InstanceID,$mqttId, $topic, $projectname, false);
+            $this->MqttPublish($this->InstanceID,$mqttId, $topic, $projectname, false);
 
     }
 
