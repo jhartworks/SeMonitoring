@@ -7,13 +7,13 @@ class MonitoringServer extends IPSModule {
         // Diese Zeile nicht löschen.
         parent::Create();
         
-        $this->RegisterPropertyInteger("ParseNotifyCategoryID","0");
-        $this->RegisterPropertyInteger("ParseAlarmCategoryID","0");
-        $this->RegisterPropertyInteger("ParseAnalogCategoryID","0");
+        $this->RegisterPropertyInteger("ParseNotifyCategoryID",0);
+        $this->RegisterPropertyInteger("ParseAlarmCategoryID",0);
+        $this->RegisterPropertyInteger("ParseAnalogCategoryID",0);
 
-        $this->RegisterPropertyInteger("ISP","1");
-        $this->RegisterPropertyInteger("SqlId","27624");
-        $this->RegisterPropertyInteger("VisuId","0");
+        $this->RegisterPropertyInteger("ISP",1);
+        $this->RegisterPropertyInteger("SqlId",28137);
+        $this->RegisterPropertyInteger("VisuId",0);
         $this->RegisterPropertyInteger("Projectnumber",123456);
         $this->RegisterPropertyString("Projectname","Musterprojekt");
         $this->RegisterPropertyString("InfluxDatabase","monitoring");
@@ -46,10 +46,10 @@ class MonitoringServer extends IPSModule {
         $this->RegisterPropertyInteger("InfluxPort",8086);
 
 
-        $this->RegisterPropertyInteger("UpdateintervallValues","30");
-        $this->RegisterPropertyInteger("UpdateintervallAlarms","10");
-        $this->RegisterPropertyInteger("UpdateintervallForceValues","30");
-        $this->RegisterPropertyInteger("UpdateintervallSendFtp","30");
+        $this->RegisterPropertyInteger("UpdateintervallValues",30);
+        $this->RegisterPropertyInteger("UpdateintervallAlarms",10);
+        $this->RegisterPropertyInteger("UpdateintervallForceValues",30);
+        $this->RegisterPropertyInteger("UpdateintervallSendFtp",30);
 
 
         $this->RegisterTimer("UpdateAlarms", 0, 'SEMS_checkAlarms('.$this->InstanceID.');');
@@ -228,7 +228,7 @@ class MonitoringServer extends IPSModule {
         $actAnalogCount = GetValueInteger($this->GetIDForIdent("AnalogVarCount"));
         $oldAnalogCount = $this->ReadAttributeInteger("AnalogVarCountOld");
         if($actAnalogCount <> $oldAnalogCount){
-            $this->WriteAttributeInteger("AnalogVarCountOld", $actAlarmCount);
+            $this->WriteAttributeInteger("AnalogVarCountOld", $actAnalogCount);
             $this->clearNames();
         }
 
@@ -408,9 +408,9 @@ class MonitoringServer extends IPSModule {
 
     private function notify($trigid, $webfrontid, $targetid, $projectnumber, $projectname, $ispnr){
         
-        $projectnumber = $this->ReadPropertyInteger("Projectnumber");
-        $projectname = $this->ReadPropertyString("Projectname");
-        $ispnumber = $this->ReadPropertyInteger("ISP");
+        //$projectnumber = $this->ReadPropertyInteger("Projectnumber");
+        //$projectname = $this->ReadPropertyString("Projectname");
+        $ispnumber = $ispnr; /// $this->ReadPropertyInteger("ISP");
 
         $sendit         = $this->ReadPropertyBoolean("SendNotification");
         $sendwhatsapp   = $this->ReadPropertyBoolean("SendWhatsapp");
@@ -429,9 +429,9 @@ class MonitoringServer extends IPSModule {
         $tdOld = $this->ReadAttributeString("AtAlarmtable");
         $td = $tdOld;
         
-        if ($idSql > 0 && $idSql != 12345){
+        if ($idSql > 1 && $idSql != 12345){
         MySQL_Open($idSql);
-        }
+
 
         // === Helfer: Escaping für Strings ===
         if (function_exists('MySQL_RealEscapeString')) {
@@ -440,7 +440,7 @@ class MonitoringServer extends IPSModule {
         // Fallback, falls Modul-Funktion nicht verfügbar ist
             $esc = fn(string $s) => addslashes($s);
         }
-
+        }
         $time = date("Y-m-d H:i:s");
 
                 $art = $projectnumber." | ".$projectname. " | ISP ".$ispnr;
@@ -497,14 +497,14 @@ class MonitoringServer extends IPSModule {
                             $error    = curl_error($ch);
                             curl_close($ch);
 
-                            header('Content-Type: text/plain');
+/*                             header('Content-Type: text/plain');
 
                             echo "HTTP-Code: $httpcode\n";
                             if ($error) {
                                 echo "cURL Error: $error\n";
                             } else {
                                 echo "Response:\n$response\n";
-                            }
+                            } */
 
                                // IPS_LogMessage ("Send Whatsapp " .$projectnumber , "Whatsapp an folgende Nummer gesendet: ". $number );
                             }
@@ -538,7 +538,7 @@ class MonitoringServer extends IPSModule {
                                 )",
                                 $esc($smname), $esc($phonenumber)
                             );
-                            if ($idSql > 0 && $idSql != 12345){
+                            if ($idSql > 1 && $idSql != 12345){
                                
                             
                             // === Ausführen ===
@@ -615,7 +615,7 @@ class MonitoringServer extends IPSModule {
                     (int)$mail, $esc($email_address), (int)$mailed,
                     (int)$push
                 );
-                if ($idSql > 0 && $idSql != 12345){
+                if ($idSql > 1 && $idSql != 12345){
                 // === Ausführen ===
                 $ok = MySQL_ExecuteSimple($idSql, $sql);
                 if (!$ok) {
