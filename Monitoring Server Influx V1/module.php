@@ -429,17 +429,18 @@ class MonitoringServer extends IPSModule {
         $tdOld = $this->ReadAttributeString("AtAlarmtable");
         $td = $tdOld;
         
-        if ($idSql > 1 && $idSql != 12345){
-        MySQL_Open($idSql);
+        if ($idSql > 0 && IPS_InstanceExists($idSql)){
+                MySQL_Open($idSql);
 
 
-        // === Helfer: Escaping für Strings ===
-        if (function_exists('MySQL_RealEscapeString')) {
-            $esc = fn(string $s) => MySQL_RealEscapeString($idSql, $s);
-        } else {
-        // Fallback, falls Modul-Funktion nicht verfügbar ist
-            $esc = fn(string $s) => addslashes($s);
-        }
+                // === Helfer: Escaping für Strings ===
+                if (function_exists('MySQL_RealEscapeString')) {
+                    $esc = fn(string $s) => MySQL_RealEscapeString($idSql, $s);
+                } else {
+                // Fallback, falls Modul-Funktion nicht verfügbar ist
+                    $esc = fn(string $s) => addslashes($s);
+                }
+
         }
         $time = date("Y-m-d H:i:s");
 
@@ -538,7 +539,7 @@ class MonitoringServer extends IPSModule {
                                 )",
                                 $esc($smname), $esc($phonenumber)
                             );
-                            if ($idSql > 1 && $idSql != 12345){
+                            if ($idSql > 0 && IPS_InstanceExists($idSql)){
                                
                             
                             // === Ausführen ===
@@ -615,7 +616,7 @@ class MonitoringServer extends IPSModule {
                     (int)$mail, $esc($email_address), (int)$mailed,
                     (int)$push
                 );
-                if ($idSql > 1 && $idSql != 12345){
+            if ($idSql > 0 && IPS_InstanceExists($idSql)){
                 // === Ausführen ===
                 $ok = MySQL_ExecuteSimple($idSql, $sql);
                 if (!$ok) {
