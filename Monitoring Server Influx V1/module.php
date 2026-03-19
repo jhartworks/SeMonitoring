@@ -429,7 +429,9 @@ class MonitoringServer extends IPSModule {
         $tdOld = $this->ReadAttributeString("AtAlarmtable");
         $td = $tdOld;
         
+        if ($idSql > 0 && $idSql != 12345){
         MySQL_Open($idSql);
+        }
 
         // === Helfer: Escaping für Strings ===
         if (function_exists('MySQL_RealEscapeString')) {
@@ -449,12 +451,12 @@ class MonitoringServer extends IPSModule {
             if (GetValue($trigid) == true && ($this->GetBuffer($smname) == "true"))  {
                 
                 $this->SetBuffer($smname, "false");
-
-                if ($sendit == true){
-                    VISU_PostNotification($webfrontid, $art, $smname, $ico, $targetid);
-                    $push = 1;
-                } 
-                
+                if($webfrontid != 0){
+                    if ($sendit == true){
+                        VISU_PostNotification($webfrontid, $art, $smname, $ico, $targetid);
+                        $push = 1;
+                    } 
+                }
                 $whatsapp   = 0;
                 $whatsapped = 0;
                 if ($sendwhatsapp == true){
@@ -536,14 +538,20 @@ class MonitoringServer extends IPSModule {
                                 )",
                                 $esc($smname), $esc($phonenumber)
                             );
-
+                            if ($idSql > 0 && $idSql != 12345){
+                               
+                            
                             // === Ausführen ===
                             $okcall = MySQL_ExecuteSimple($idSql, $sqlcall);
                             if (!$okcall) {
                                 echo "INSERT fehlgeschlagen.\n";
                             }
 
+                            }
+
+
                             $phoned        = 1;
+
                         }
                     }
                 }
@@ -607,11 +615,12 @@ class MonitoringServer extends IPSModule {
                     (int)$mail, $esc($email_address), (int)$mailed,
                     (int)$push
                 );
-
+                if ($idSql > 0 && $idSql != 12345){
                 // === Ausführen ===
                 $ok = MySQL_ExecuteSimple($idSql, $sql);
                 if (!$ok) {
                     echo "INSERT fehlgeschlagen.\n";
+                }
                 }
             }
             elseif (GetValue($trigid) == false) {
