@@ -208,8 +208,8 @@ class MonitoringClient extends IPSModule {
             $id = IPS_GetChildrenIDs($id)[0];
             IPS_LogMessage("Monitoring Client", "ID was :".$id);
 
-            $valSelf = $this->GetValue($id);
-            $valSource = $this->GetValue($source);
+            $valSelf = GetValue($id);
+            $valSource = GetValue($source);
 
             IPS_LogMessage("Monitoring Client", "Self value: " . $valSelf . " Source value: " . $valSource);
 
