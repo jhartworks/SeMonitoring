@@ -4,6 +4,8 @@
         { "type": "SelectCategory", "name": "ParseNotifyCategoryID", "caption": "Notify Target ID" },
         { "type": "SelectCategory", "name": "ParseAlarmCategoryID", "caption": "Alarm Target ID" },
         { "type": "SelectCategory", "name": "ParseAnalogCategoryID", "caption": "Analog Target ID" },
+        { "type": "SelectCategory", "name": "ParseSetpointCategoryID", "caption": "Setpoint Target ID" },
+        { "type": "SelectCategory", "name": "ParseSetpointCacheCategoryID", "caption": "Setpoint Cache Target ID" },
 
         { "type": "SelectObject", "name": "MqttCLientID", "caption": "MQTT-Client" },
         { "type": "NumberSpinner", "name": "Projectyear", "caption": "Projectyear" },

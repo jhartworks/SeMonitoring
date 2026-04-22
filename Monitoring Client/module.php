@@ -9,6 +9,8 @@ class MonitoringClient extends IPSModule {
         $this->RegisterPropertyInteger("ParseNotifyCategoryID","0");
         $this->RegisterPropertyInteger("ParseAlarmCategoryID","0");
         $this->RegisterPropertyInteger("ParseAnalogCategoryID","0");
+        $this->RegisterPropertyInteger("ParseSetpointCategoryID","0");
+        $this->RegisterPropertyInteger("ParseSetpointCacheCategoryID","0");
 
         $this->RegisterPropertyInteger("MqttCLientID","0");
         $this->RegisterPropertyInteger("Projectnumber","230001");
@@ -120,6 +122,96 @@ class MonitoringClient extends IPSModule {
         return true;
     } // MQTT_Publish
 
+    public function MqttSync($server_id, $topic, $payload, $retain, $ident, $source) {
+
+        $cacheCat = $this->ReadPropertyInteger("ParseSetpointCacheCategoryID");
+
+        // ensure server instance exists
+        if(!IPS_InstanceExists($server_id)) {
+            return false;
+        }
+
+        // determine data type
+        if(is_string($payload)) {
+
+            $ips_var_type = 3;
+        } else if(is_float($payload)) {
+            $ips_var_type = 2;
+        } else if(is_int($payload)) {
+            $ips_var_type = 1;
+        } else if(is_bool($payload)) {
+            $ips_var_type = 0;
+        } else { // unsupported
+            return false;
+        }
+
+        $module_id = "{01C00ADD-D04E-452E-B66A-D253278743FE}" /* Module ID of MQTT Server Device */;
+
+            // get temporary MQTT Server Device or create if needed
+            $id = @IPS_GetObjectIDByIdent($ident, $cacheCat);
+            if($id === false) {
+                $id = @IPS_CreateInstance($module_id);
+                if($id === false) {
+                    return false;
+                }
+                IPS_SetParent($id, $cacheCat);
+                IPS_SetIdent($id, $ident);
+                // name object to help with debugging
+                IPS_SetName($id, "CS_" . $name);
+
+                // configure temporary device
+                $config_arr = array(
+                    "Retain" => $retain,
+                    "Topic" => $topic,
+                    "Type" => $ips_var_type
+                );
+
+                $config_str = json_encode($config_arr);
+                IPS_SetConfiguration($id, $config_str);
+                IPS_ApplyChanges($id);
+            }
+
+            // ensure the specified server instance is actually compatible
+            if(!IPS_IsInstanceCompatible($id, $server_id)) {
+                return false;
+            }
+
+            $inst_config = IPS_GetInstance($id);
+            if($inst_config["ConnectionID"] != $server_id) {
+                IPS_DisconnectInstance($id);
+                if(!@IPS_ConnectInstance($id, $server_id)) {
+                    return false;
+                }
+            }
+
+            $valSelf = $this->GetValue($id);
+            $valSource = $this->GetValue($source);
+
+            $varInfoSelf = IPS_GetVariable($id); 
+            $changedtimeSelf = $varInfoSelf["VariableChanged"];
+
+            $varInfoSource = IPS_GetVariable($source); 
+            $changedtimeSource = $varInfoSource["VariableChanged"];
+
+            if($valSelf != $valSource) {
+
+                //self is newer than source, so update source with self value
+                if ($changedtimeSelf > $changedtimeSource) {
+                    RequestAction($source, $valSelf);
+                } 
+
+                //source is newer than self, so update self with source value
+                if ($changedtimeSource > $changedtimeSelf) {
+                    RequestAction($id, $valSource);
+                }
+
+            }
+
+
+
+        return true;
+    } // MQTT_Sync
+
     public function SendTopic() {
    
         $mqttId = $this->ReadPropertyInteger("MqttCLientID");
@@ -135,7 +227,9 @@ class MonitoringClient extends IPSModule {
             $catIds[1]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
             $catIds[2]["id"] = $this->ReadPropertyInteger("ParseAnalogCategoryID");
             $catIds[2]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
-
+            $catIds[3]["id"] = $this->ReadPropertyInteger("ParseSetpointCategoryID");
+            $catIds[3]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Setpoint/";
+            $catIds[3]["setpoint"] = true;
 
 
             foreach ($catIds as $catId){
@@ -151,8 +245,6 @@ class MonitoringClient extends IPSModule {
                             if (IPS_VariableExists($catChild) != 1 && IPS_LinkExists($catChild) != 1){
 
                                 foreach ($childids as $childid){
-
-                                    
 
                                         foreach ($childids as $childid){
                                             if (IPS_VariableExists($childid) != 1){
@@ -171,11 +263,17 @@ class MonitoringClient extends IPSModule {
                                             $topic = $catId["top"]. $parname."_".$varname;
                                             $payload = round(getvalue($childid), 2);
                                             $time = time();
-                                            if($changedtime > $time - $updatetime){
-                                                $this->MqttPublish($mqttId, $topic, $payload, false);
-                                            }
-                                            // IPS_LogMessage("Monitoring Client", "Force Update with Parent: " . $topic . " mit Payload: " . $payload);
-                                        
+
+                                            $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
+
+                                            if ($isSetpoint == true){
+                                                $this->MqttSync($mqttId, $topic, $payload, false, $parname."_".$varname, $childid);
+                                            }else{
+                                                if($changedtime > $time - $updatetime){
+                                                    $this->MqttPublish($mqttId, $topic, $payload, false);
+                                                }
+                                            }    
+
                                         }
 
                                 }
@@ -191,16 +289,22 @@ class MonitoringClient extends IPSModule {
                                     }
                                 }
 
-                                $varInfo = IPS_GetVariable($childid);
-                                $changedtime = $varInfo["VariableChanged"];
-                                $varname = IPS_GetName($childid);
-                                $topic = $catId["top"].$varname;
-                                $payload = round(getvalue($childid), 2);
-                                $time = time();
-                                if($changedtime > $time - $updatetime){
-                                    $this->MqttPublish($mqttId, $topic, $payload, false);
-                                }
-                               // IPS_LogMessage("Monitoring Client", "Force Update none Parent: " . $topic . " mit Payload: " . $payload);
+                                    $varInfo = IPS_GetVariable($childid);
+                                    $changedtime = $varInfo["VariableChanged"];
+                                    $varname = IPS_GetName($childid);
+                                    $topic = $catId["top"]. $parname."_".$varname;
+                                    $payload = round(getvalue($childid), 2);
+                                    $time = time();
+
+                                    $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
+
+                                    if ($isSetpoint == true){
+                                       $this->MqttSync($mqttId, $topic, $payload, false, $parname."_".$varname, $childid);
+                                    }else{
+                                       if($changedtime > $time - $updatetime){
+                                        $this->MqttPublish($mqttId, $topic, $payload, false);
+                                        }
+                                    }  
                             }
                         }
 

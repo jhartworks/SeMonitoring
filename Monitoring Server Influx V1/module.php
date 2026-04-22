@@ -10,6 +10,7 @@ class MonitoringServer extends IPSModule {
         $this->RegisterPropertyInteger("ParseNotifyCategoryID",0);
         $this->RegisterPropertyInteger("ParseAlarmCategoryID",0);
         $this->RegisterPropertyInteger("ParseAnalogCategoryID",0);
+        $this->RegisterPropertyInteger("ParseSetpointCategoryID",0);
 
         $this->RegisterPropertyInteger("ISP",1);
         $this->RegisterPropertyInteger("SqlId",28137);
@@ -70,6 +71,9 @@ class MonitoringServer extends IPSModule {
 
         $this->RegisterVariableInteger("DigitalVarCount", "Number of DigitalValues", "", 3);
         $this->RegisterAttributeInteger("DigitalVarCountOld", 0);
+
+        $this->RegisterVariableInteger("SetpointVarCount", "Number of SetpointValues", "", 4);
+        $this->RegisterAttributeInteger("SetpointVarCountOld", 0);
 
         $this->RegisterVariableString("Alarmtable", "Alarmhistorie", "~HTMLBox", 30);
         $this->RegisterAttributeString("AtAlarmtable", "");
@@ -239,6 +243,14 @@ class MonitoringServer extends IPSModule {
             $this->clearNames();
         }
 
+        $actSetpointCount = GetValueInteger($this->GetIDForIdent("SetpointVarCount"));
+        $oldSetpointCount = $this->ReadAttributeInteger("SetpointVarCountOld");
+        if($actSetpointCount <> $oldSetpointCount){
+            $this->WriteAttributeInteger("SetpointVarCountOld", $actSetpointCount);
+            $this->clearNames();
+        }
+
+
     }
     public function checkValues($force) {
 
@@ -333,9 +345,30 @@ class MonitoringServer extends IPSModule {
             } 
         }
 
-        SetValueInteger($this->GetIDForIdent("AnalogVarCount"),$numberofvalues);
+        SetValueInteger($this->GetIDForIdent("SetpointVarCount"),$numberofvalues);
         $numberofvalues = 0;
 
+        if ($catSetpointId > 0){
+
+            $catChilds = IPS_GetChildrenIDs($catSetpointId);
+
+            foreach ($catChilds as $catChild) { //for each object in category
+            
+
+                $objchildids = IPS_GetChildrenIDs($catChild); //get variables of objects
+                $parname = IPS_GetName($catChild);
+    
+                    foreach ($objchildids as $objchildid){
+                        
+                        $numberofvalues++;
+
+                    }
+            
+            } 
+        }
+
+        SetValueInteger($this->GetIDForIdent("AnalogVarCount"),$numberofvalues);
+        $numberofvalues = 0;
 
         if ($catNotifyId > 0){
 

@@ -4,6 +4,7 @@
         { "type": "SelectCategory", "name": "ParseNotifyCategoryID", "caption": "Digital-Objects Target ID" },
         { "type": "SelectCategory", "name": "ParseAlarmCategoryID", "caption": "Alarm-Objects Target ID" },
         { "type": "SelectCategory", "name": "ParseAnalogCategoryID", "caption": "Analog-Objects Target ID" },
+        { "type": "SelectCategory", "name": "ParseSetpointCategoryID", "caption": "Setpoint-Objects Target ID" },
 
         { "type": "NumberSpinner", "name": "Projectnumber", "caption": "Projectnumber without leading P Character" },
         { "type": "ValidationTextBox", "name": "Projectname", "caption": "Projectname" },
