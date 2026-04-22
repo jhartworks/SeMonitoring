@@ -123,7 +123,7 @@ class MonitoringClient extends IPSModule {
     } // MQTT_Publish
 
     public function MqttSync($server_id, $topic, $payload, $retain, $ident, $source) {
-
+        IPS_LogMessage("Monitoring Client", "MQTT Sync called with Topic: " . $topic . " Payload: " . $payload. " Source: " . $source . " Ident: " . $ident);
         $cacheCat = $this->ReadPropertyInteger("ParseSetpointCacheCategoryID");
 
         if ($cacheCat < 1){
@@ -162,6 +162,7 @@ class MonitoringClient extends IPSModule {
             return false;
             IPS_LogMessage("Monitoring Client", "Unsupported data type for Setpoint Sync.");
         }
+        IPS_LogMessage("Monitoring Client", "Data type for Setpoint Sync determined as: " . $ips_var_type);
 
         $module_id = "{01C00ADD-D04E-452E-B66A-D253278743FE}" /* Module ID of MQTT Server Device */;
 
@@ -175,7 +176,7 @@ class MonitoringClient extends IPSModule {
                 IPS_SetParent($id, $cacheCat);
                 IPS_SetIdent($id, $ident);
                 // name object to help with debugging
-                IPS_SetName($id, "CS_" . $name);
+                IPS_SetName($id, "CS_" . $ident);
 
                 // configure temporary device
                 $config_arr = array(
@@ -192,6 +193,7 @@ class MonitoringClient extends IPSModule {
             // ensure the specified server instance is actually compatible
             if(!IPS_IsInstanceCompatible($id, $server_id)) {
                 return false;
+                IPS_LogMessage("Monitoring Client", "Device is not compatible with server instance for Setpoint Sync.");
             }
 
             $inst_config = IPS_GetInstance($id);
@@ -199,6 +201,7 @@ class MonitoringClient extends IPSModule {
                 IPS_DisconnectInstance($id);
                 if(!@IPS_ConnectInstance($id, $server_id)) {
                     return false;
+                    IPS_LogMessage("Monitoring Client", "Could not connect device to server instance for Setpoint Sync.");
                 }
             }
 
@@ -216,11 +219,13 @@ class MonitoringClient extends IPSModule {
                 //self is newer than source, so update source with self value
                 if ($changedtimeSelf > $changedtimeSource) {
                     RequestAction($source, $valSelf);
+                    IPS_LogMessage("Monitoring Client", "Source variable updated with self value for Setpoint Sync. Source: " . $source . " Value: " . $valSelf);
                 } 
 
                 //source is newer than self, so update self with source value
                 if ($changedtimeSource > $changedtimeSelf) {
                     RequestAction($id, $valSource);
+                    IPS_LogMessage("Monitoring Client", "Self variable updated with source value for Setpoint Sync. Self: " . $id . " Value: " . $valSource);
                 }
 
             }
@@ -241,10 +246,13 @@ class MonitoringClient extends IPSModule {
 
             $catIds[0]["id"] = $this->ReadPropertyInteger("ParseNotifyCategoryID");
             $catIds[0]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Notify/";
+            $catIds[0]["setpoint"] = false;
             $catIds[1]["id"] = $this->ReadPropertyInteger("ParseAlarmCategoryID");
             $catIds[1]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Alarm/";
+            $catIds[1]["setpoint"] = false;
             $catIds[2]["id"] = $this->ReadPropertyInteger("ParseAnalogCategoryID");
             $catIds[2]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Analog/";
+            $catIds[2]["setpoint"] = false;
             $catIds[3]["id"] = $this->ReadPropertyInteger("ParseSetpointCategoryID");
             $catIds[3]["top"] = "Projekte". $projectyear."/P".$projectnumber. "/ISP" .$ispnumber. "/Setpoint/";
             $catIds[3]["setpoint"] = true;
@@ -285,6 +293,7 @@ class MonitoringClient extends IPSModule {
                                             $payload = round(getvalue($childid), 2);
                                             $time = time();
 
+                                            $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
                                             
                                             if ($isSetpoint == true){
                                                 IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
@@ -318,7 +327,7 @@ class MonitoringClient extends IPSModule {
                                     $payload = round(getvalue($childid), 2);
                                     $time = time();
 
-                                    
+                                    $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
 
                                     if ($isSetpoint == true){
                                         IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
