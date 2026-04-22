@@ -126,6 +126,18 @@ class MonitoringClient extends IPSModule {
 
         $cacheCat = $this->ReadPropertyInteger("ParseSetpointCacheCategoryID");
 
+        if ($cacheCat == 0){
+            return false;
+        }
+
+        if (IPS_CategoryExists($cacheCat) == false){
+            return false;
+        }
+
+        if (IPS_VariableExists($source) == false){
+            return false;
+        }
+
         // ensure server instance exists
         if(!IPS_InstanceExists($server_id)) {
             return false;
