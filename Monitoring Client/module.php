@@ -273,13 +273,15 @@ class MonitoringClient extends IPSModule {
                                             $changedtime = $varInfo["VariableChanged"];
                                             $varname = IPS_GetName($childid);
                                             $topic = $catId["top"]. $parname."_".$varname;
+                                            $syncname = $parname."_".$varname;
                                             $payload = round(getvalue($childid), 2);
                                             $time = time();
 
                                             $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
 
                                             if ($isSetpoint == true){
-                                                $this->MqttSync($mqttId, $topic, $payload, false, $parname."_".$varname, $childid);
+                                                $this->MqttSync($mqttId, $topic, $payload, false, $syncname, $childid);
+                                                IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
                                             }else{
                                                 if($changedtime > $time - $updatetime){
                                                     $this->MqttPublish($mqttId, $topic, $payload, false);
