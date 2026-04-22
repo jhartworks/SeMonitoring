@@ -204,6 +204,8 @@ class MonitoringClient extends IPSModule {
                     IPS_LogMessage("Monitoring Client", "Could not connect device to server instance for Setpoint Sync.");
                 }
             }
+            
+            $id = $this->IPS_GetChildrenIDs($id)[0];
 
             $valSelf = $this->GetValue($id);
             $valSource = $this->GetValue($source);
