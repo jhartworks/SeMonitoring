@@ -9,8 +9,8 @@ class MonitoringClient extends IPSModule {
         $this->RegisterPropertyInteger("ParseNotifyCategoryID","0");
         $this->RegisterPropertyInteger("ParseAlarmCategoryID","0");
         $this->RegisterPropertyInteger("ParseAnalogCategoryID","0");
-        $this->RegisterPropertyInteger("ParseSetpointCategoryID","0");
-        $this->RegisterPropertyInteger("ParseSetpointCacheCategoryID","0");
+        $this->RegisterPropertyInteger("ParseSetpointCategoryID",-1);
+        $this->RegisterPropertyInteger("ParseSetpointCacheCategoryID",-1);
 
         $this->RegisterPropertyInteger("MqttCLientID","0");
         $this->RegisterPropertyInteger("Projectnumber","230001");
@@ -126,7 +126,7 @@ class MonitoringClient extends IPSModule {
 
         $cacheCat = $this->ReadPropertyInteger("ParseSetpointCacheCategoryID");
 
-        if ($cacheCat == 0){
+        if ($cacheCat < 1){
             IPS_LogMessage("Monitoring Client", "No Cache Category defined for Setpoint Sync. Please define a Cache Category to use this feature.");
             return false;
         }
@@ -252,6 +252,8 @@ class MonitoringClient extends IPSModule {
 
             foreach ($catIds as $catId){
 
+                        $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
+
                         $catChilds = IPS_GetChildrenIDs($catId["id"]);
 
                         foreach ($catChilds as $catChild) {
@@ -283,8 +285,7 @@ class MonitoringClient extends IPSModule {
                                             $payload = round(getvalue($childid), 2);
                                             $time = time();
 
-                                            $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
-
+                                            
                                             if ($isSetpoint == true){
                                                 IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
                                                 $this->MqttSync($mqttId, $topic, $payload, false, $syncname, $childid);
@@ -317,7 +318,7 @@ class MonitoringClient extends IPSModule {
                                     $payload = round(getvalue($childid), 2);
                                     $time = time();
 
-                                    $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
+                                    
 
                                     if ($isSetpoint == true){
                                         IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
