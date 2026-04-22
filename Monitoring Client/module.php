@@ -127,19 +127,24 @@ class MonitoringClient extends IPSModule {
         $cacheCat = $this->ReadPropertyInteger("ParseSetpointCacheCategoryID");
 
         if ($cacheCat == 0){
+            IPS_LogMessage("Monitoring Client", "No Cache Category defined for Setpoint Sync. Please define a Cache Category to use this feature.");
             return false;
         }
 
         if (IPS_CategoryExists($cacheCat) == false){
+            IPS_LogMessage("Monitoring Client", "Cache Category does not exist for Setpoint Sync.");
             return false;
         }
 
         if (IPS_VariableExists($source) == false){
+            IPS_LogMessage("Monitoring Client", "Source variable does not exist for Setpoint Sync.");
+
             return false;
         }
 
         // ensure server instance exists
         if(!IPS_InstanceExists($server_id)) {
+            IPS_LogMessage("Monitoring Client", "Server instance does not exist for Setpoint Sync.");
             return false;
         }
 
@@ -155,6 +160,7 @@ class MonitoringClient extends IPSModule {
             $ips_var_type = 0;
         } else { // unsupported
             return false;
+            IPS_LogMessage("Monitoring Client", "Unsupported data type for Setpoint Sync.");
         }
 
         $module_id = "{01C00ADD-D04E-452E-B66A-D253278743FE}" /* Module ID of MQTT Server Device */;
@@ -280,8 +286,9 @@ class MonitoringClient extends IPSModule {
                                             $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
 
                                             if ($isSetpoint == true){
-                                                $this->MqttSync($mqttId, $topic, $payload, false, $syncname, $childid);
                                                 IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
+                                                $this->MqttSync($mqttId, $topic, $payload, false, $syncname, $childid);
+                                                
                                             }else{
                                                 if($changedtime > $time - $updatetime){
                                                     $this->MqttPublish($mqttId, $topic, $payload, false);
@@ -313,8 +320,8 @@ class MonitoringClient extends IPSModule {
                                     $isSetpoint = isset($catId["setpoint"]) ? $catId["setpoint"] : false;
 
                                     if ($isSetpoint == true){
-                                       $this->MqttSync($mqttId, $topic, $payload, false, $parname."_".$varname, $childid);
                                         IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
+                                       $this->MqttSync($mqttId, $topic, $payload, false, $parname."_".$varname, $childid);
 
                                     }else{
                                        if($changedtime > $time - $updatetime){
