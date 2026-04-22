@@ -314,6 +314,8 @@ class MonitoringClient extends IPSModule {
 
                                     if ($isSetpoint == true){
                                        $this->MqttSync($mqttId, $topic, $payload, false, $parname."_".$varname, $childid);
+                                        IPS_LogMessage("Monitoring Client", "Sync Setpoint: " . $topic . " mit Payload: " . $payload. " und Source: " . $childid . " und Ident: " . $syncname);
+
                                     }else{
                                        if($changedtime > $time - $updatetime){
                                         $this->MqttPublish($mqttId, $topic, $payload, false);
