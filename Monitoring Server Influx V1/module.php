@@ -345,7 +345,7 @@ class MonitoringServer extends IPSModule {
             } 
         }
 
-        SetValueInteger($this->GetIDForIdent("SetpointVarCount"),$numberofvalues);
+        SetValueInteger($this->GetIDForIdent("AnalogVarCount"),$numberofvalues);
         $numberofvalues = 0;
 
         if ($catSetpointId > 0){
@@ -367,7 +367,7 @@ class MonitoringServer extends IPSModule {
             } 
         }
 
-        SetValueInteger($this->GetIDForIdent("AnalogVarCount"),$numberofvalues);
+        SetValueInteger($this->GetIDForIdent("SetpointVarCount"),$numberofvalues);
         $numberofvalues = 0;
 
         if ($catNotifyId > 0){
